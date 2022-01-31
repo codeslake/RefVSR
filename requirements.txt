@@ -1,0 +1,15 @@
+tensorboardX==2.4
+termcolor==1.1.0
+easydict==1.9
+opencv-python==4.5.3.56
+scipy==1.7.1
+ptflops==0.6.6
+addict==2.4.0
+yapf==0.31.0
+packaging==21.0
+pyyaml==5.4.1
+scikit-image==0.18.3
+scikit-learn==1.0
+tqdm==4.62.3
+kornia==0.5.11
+fvcore==0.1.5
