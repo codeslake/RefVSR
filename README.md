@@ -38,21 +38,21 @@ This repository contains the official PyTorch implementation of the following pa
 
 	$ conda create -y name RefVSR pythron 3.8 && conda activate RefVSR
 
-    ## Install pytorch (Change cudatoolkit version accordingly. Below uses 11.3)
-	$ conda installytorch torchvision torchaudio cudatoolkit=11.3 -cytorch
+    ## Install pytorch (change the version for cudatoolkit accordingly.)
+	$ conda installpytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 
-    ## Install requirements
+    ## Install requirements (select one from below.)
     # for CUDA10.2
 	$ sh install_cudnn102.sh
     # for CUDA11.1
 	$ sh install_cudnn111.sh
-    # for CUDA11.3
+    # for CUDA11.3 (For running small models with pytorch AMP)
 	$ sh install_cudnn113.sh
 	```
 
 	> **Note:**
 	>
-	> * For using PyTorch amp, it is recommended to use PyTorch1.10 with CUDA11.3. PyTorch < 1.10 is known to have problem in running amp with [`torch.nn.functional.grid_sample()`](https://github.com/pytorch/pytorch/issues/42218) needed for warping frames.
+	> * For using PyTorch AMP, it is recommended to use PyTorch >= 1.10.0 with CUDA11.3. PyTorch < 1.10 is known to have [a problem in running amp with `torch.nn.functional.grid_sample()`](https://github.com/pytorch/pytorch/issues/42218) needed for warping frames.
 
 2. **Datasets**
 3. **Pre-trained models**
