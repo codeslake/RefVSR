@@ -1,14 +1,16 @@
 # Reference-based Video Super-Resolution with Propagative Temporal Fusion Using Multi-Camera Video Triplets
 ![License CC BY-NC](https://img.shields.io/badge/license-GNU_AGPv3-blue.svg?style=plastic)
 
-<p align="center">
-   <img src="./assets/network.jpg" />
-</p>
-
 This repository contains the official PyTorch implementation of the following paper:
 
 > **[Reference-based Video Super-Resolution with Propagative Temporal Fusion Using Multi-Camera Video Triplets (TODO)]()**<br>
-> Hyeongseok Son, Junyong Lee, Jonghyeop Lee, Sunghyun Cho, Seungyong Lee, TOG 2021
+> Junyong Lee, Myeonghee Lee, Sunghyun Cho, Seungyong Lee, ArXiv 2022
+
+<p align="left">
+  <a href="https://codeslake.github.io/publications/#IFAN">
+    <img width=85% src="./assets/teaser.jpg"/>
+  </a><br>
+</p>
 
 ## About the Research
 <details>
@@ -21,6 +23,7 @@ This repository contains the official PyTorch implementation of the following pa
 
 ## Getting Started
 ### Prerequisites
+
 *Tested environment*
 
 ![Ubuntu](https://img.shields.io/badge/Ubuntu-18.0.4-blue.svg?style=plastic)
@@ -38,8 +41,6 @@ This repository contains the official PyTorch implementation of the following pa
 * [Logging](https://github.com/codeslake/RefVSR/wiki/Log-Details)
 * [Training and testing details](https://github.com/codeslake/RefVSR/wiki/Training-&-Testing-Details)
 
-## Evaluation
-
 ## Citation
 If you find this code useful, please consider citing:
 ```
@@ -56,14 +57,14 @@ Open an issue for any inquiries.
 You may also have contact with [junyonglee@postech.ac.kr](mailto:junyonglee@postech.ac.kr)
 
 ## Resources
-All material related to our paper is available by following links:
+All material related to our paper is available with the following links:
 
 | Link |
 | :-------------- |
 | [The main paper (todo)]() |
 | [Supplementary Files (todo)]() |
 | [Checkpoint Files (todo)]() |
-| [The RealMCVSR dataset]() |
+| [The RealMCVSR dataset (todo)]() |
 
 ## License
 This software is being made available under the terms in the [LICENSE](LICENSE) file.

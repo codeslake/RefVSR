@@ -208,3 +208,29 @@ class baseTrainer():
         # log['gnorm'] = total_norm
 
         return log
+
+    def _update_amp(self, errs):
+
+        self.optimizer.zero_grad(set_to_none=True)
+        self.scaler.scale(errs['total']).backward()
+
+        self.scaler.unscale_(self.optimizer)
+        torch_utils.clip_grad_norm_(self.network.parameters(), self.config.gc)
+
+        # total_norm = 0
+        # for name, p in self.network.named_parameters():
+        #     if p.grad != None:
+        #         param_norm = p.grad.data.norm(2)
+        #         total_norm += param_norm.item() ** 2
+        #     elif p.requires_grad != False:
+        #         if self.rank <= 0: print('grad_none: ', name)
+
+        # total_norm = total_norm ** (1. / 2)
+
+        self.scaler.step(self.optimizer)
+        self.scaler.update()
+
+        log = self._update_learning_rate(self.itr_global['train'])
+        # log['gnorm'] = total_norm
+
+        return log

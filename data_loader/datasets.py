@@ -260,7 +260,7 @@ class Test_datasets(data.Dataset):
                     LR_REF_W_patches_temp[frame_idx] = read_frame(LR_REF_W_file_path[sampled_idx])[crop_offset:-crop_offset, crop_offset:-crop_offset, :]
                     LR_REF_T_patches_temp[frame_idx] = read_frame(LR_REF_T_file_path[sampled_idx])[crop_offset:-crop_offset, crop_offset:-crop_offset, :]
                     HR_UW_patches_temp[frame_idx] = read_frame(HR_UW_file_path[sampled_idx])[4*crop_offset:-4*crop_offset, 4*crop_offset:-4*crop_offset, :]
-                elif self.flag_HD_in:
+                else:
                     LR_UW_patches_temp[frame_idx] = read_frame(LR_UW_file_path[sampled_idx])[256:256+256*2, 480:480+480*2, :]
                     LR_REF_W_patches_temp[frame_idx] = read_frame(LR_REF_W_file_path[sampled_idx])
                     LR_REF_T_patches_temp[frame_idx] = read_frame(LR_REF_T_file_path[sampled_idx])
@@ -287,6 +287,17 @@ class Test_datasets(data.Dataset):
         if self.idx_video[index] == self.idx_video[index - 1]:
             is_first = False
 
+        # is_portrait = False
+        # if self.is_valid:
+        #     t, c, h, w = LR_UW_patches.size()
+        #     # if portrait (memory issue during validation when training)
+        #     if h > w:
+        #         is_portrait = True
+        #         LR_UW_patches = torch.rot90(LR_UW_patches, 1, [2, 3]).contiguous()
+        #         LR_REF_W_patches = torch.rot90(LR_REF_W_patches, 1, [2, 3]).contiguous()
+        #         LR_REF_T_patches = torch.rot90(LR_REF_T_patches, 1, [2, 3]).contiguous()
+        #         HR_UW_patches = torch.rot90(HR_UW_patches, 1, [2, 3]).contiguous()
+
 
         return {'LR_UW': LR_UW_patches,
                 'LR_REF_W':LR_REF_W_patches,
@@ -296,6 +307,7 @@ class Test_datasets(data.Dataset):
                 'HR_REF_T': HR_UW_patches,
                 #
                 'is_first': is_first,
+                # 'is_portrait': is_portrait,
                 'video_len': len(self.LR_UW_file_path_list),
                 'frame_len': len(self.LR_UW_file_path_list[video_idx]),
                 'video_idx': video_idx,

@@ -44,6 +44,8 @@ class Trainer(baseTrainer):
 
         ### INIT for training ###
         if self.is_train:
+            if self.config.is_amp:
+                self.scaler = torch.cuda.amp.GradScaler()
             self.network.init()
             self._set_dataloader()
             self._set_optim()
@@ -107,7 +109,7 @@ class Trainer(baseTrainer):
         ## save visuals (inputs)
         self.results['vis'] = collections.OrderedDict()
         self.results['vis']['LR_UW{}'.format('' if not self.config.flag_HD_in else '')] = outs['LR_UW']
-        self.results['vis']['SR_UW{}'.format('' if not self.config.flag_HD_in else '')]= outs['result']
+        self.results['vis']['SR_UW{}'.format('' if not self.config.flag_HD_in else '')] = outs['result'].detach()
         self.results['vis']['HR_UW'] = outs['HR_UW']
         self.results['vis']['LR_REF_W'] = outs['LR_REF_W']
         if is_train:
@@ -117,6 +119,13 @@ class Trainer(baseTrainer):
             ## save visuals (outputs)
             if 'vis' in outs.keys():
                 self.results['vis'].update(outs['vis'].items())
+
+        # rotate roated portrait frames (which have been rotated 90 in data loader) to original rotation (due to memory issue during valudation in training)
+        # if 'is_portrait' in inputs.keys() and inputs['is_portrait']:
+        #     for k, v in self.results['vis'].items():
+        #         self.results['vis'][k] = torch.rot90(v, 3, [v.dim()-2, v.dim()-1])
+        # print('\n\n', self.rank, inputs['is_portrait'], inputs['LR_UW'].size(), inputs['LR_UW'].is_contiguous(), self.results['vis']['SR_UW'].size(), '\n\n')
+
 
         ## Essentials ##
         # save scalars
@@ -156,7 +165,11 @@ class Trainer(baseTrainer):
 
             #################################################################################################
 
-            outs = self.network(LR_UW_frames, LR_REF_W_frames, is_first_frame, is_log, is_train)
+            if self.config.is_amp:
+                with torch.cuda.amp.autocast():
+                    outs = self.network(LR_UW_frames, LR_REF_W_frames, is_first_frame, is_log, is_train)
+            else:
+                outs = self.network(LR_UW_frames, LR_REF_W_frames, is_first_frame, is_log, is_train)
 
             #################################################################################################
 
@@ -167,8 +180,12 @@ class Trainer(baseTrainer):
 
             errs = self.Loss.get_loss(outs['result'], HR_UW, REF_frames, is_train, is_log, outs)
 
+
             ## Updating network & get log (learning rate, gnorm)
-            log = self._update(errs) if is_train else None
+            if self.config.is_amp:
+                log = self._update_amp(errs) if is_train else None
+            else:
+                log = self._update(errs) if is_train else None
 
             ## Loggging
             with torch.no_grad():
@@ -177,7 +194,7 @@ class Trainer(baseTrainer):
                     for k, v in errs.items():
                         v_t = 0 if i == 0 else errs_total[k]
                         # errs_total[k] = v_t + v.item() if isinstance(v, torch.Tensor) else v * b
-                        errs_total[k] = v_t + b * v.clone().detach() if isinstance(v, torch.Tensor) else v
+                        errs_total[k] = v_t + b * v.detach().clone() if isinstance(v, torch.Tensor) else v
 
         assert norm_ != 0
         ## setting results for the log
@@ -234,7 +251,11 @@ class Trainer(baseTrainer):
 
         #################################################################################################
 
-        outs = self.network(LR_UW_frames, LR_REF_W_frames, is_first_frame, is_log=is_log, is_train=False)
+        if self.config.is_amp:
+            with torch.cuda.amp.autocast():
+                outs = self.network(LR_UW_frames, LR_REF_W_frames, is_first_frame, is_log=is_log, is_train=False)
+        else:
+            outs = self.network(LR_UW_frames, LR_REF_W_frames, is_first_frame, is_log=is_log, is_train=False)
 
         #################################################################################################
 

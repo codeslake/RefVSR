@@ -20,8 +20,6 @@ from utils import *
 from data_loader.utils import refine_image_pt, read_frame, load_file_list, norm
 from models.utils import warp
 from ckpt_manager import CKPT_Manager
-# from eval_input import eval_input
-# from eval_specific_video import eval_specific_video
 
 from trainers import create_trainer
 

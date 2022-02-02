@@ -48,11 +48,11 @@ class Loss():
 
                     elif loss_type in ['FID_ref_L2', 'MFID_ref_L2', 'FID_hr_L2']:
                         module = import_module('models.loss.contextual')
-                        loss_function = getattr(module, 'ContextualLoss')(vgg_layer=config.CX_vgg_layer, band_width=0.5, loss_type='L2').to(self.device)                        
+                        loss_function = getattr(module, 'ContextualLoss')(vgg_layer=config.CX_vgg_layer, band_width=0.5, loss_type='L2').to(self.device)
 
                     elif loss_type in ['FID_ref_L1', 'MFID_ref_L1', 'FID_hr_L1']:
                         module = import_module('models.loss.contextual')
-                        loss_function = getattr(module, 'ContextualLoss')(vgg_layer=config.CX_vgg_layer, loss_type='L1').to(self.device)                        
+                        loss_function = getattr(module, 'ContextualLoss')(vgg_layer=config.CX_vgg_layer, loss_type='L1').to(self.device)
 
                     elif loss_type in ['FID_ref_X_mu', 'MFID_ref_X_mu']:
                         module = import_module('models.loss.contextual_X_mu')
@@ -125,7 +125,7 @@ class Loss():
                 # elif l['type'] == 'FID_hr' and is_train:
                 elif 'FID_hr' in l['type'] and is_train:
                     sr_ = sr if not self.config.flag_HD_in else sr_down
-                    loss_sh, c_sh = l['function'](sr_, hr) 
+                    loss_sh, c_sh = l['function'](sr_, hr)
                     loss_hs, c_hs = l['function'](hr, sr_)
                     loss = loss_sh + loss_hs
 

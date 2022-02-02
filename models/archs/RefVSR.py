@@ -193,7 +193,7 @@ class Network(nn.Module):
                 conf_map_prop = warp(conf_map_prop, flow)
                 feat_prop_UP = warp(feat_prop_UP, F.interpolate(input=flow, scale_factor=2, mode='bilinear', align_corners=True) * 2.0)
                 if is_log and i == t//2:
-                    outs['vis']['BW_LR_next_warp'] = warp(lrs[:, i+1], flow).clone().detach()
+                    outs['vis']['BW_LR_next_warp'] = warp(lrs[:, i+1], flow).detach().clone()
 
             feat_prop = torch.cat([lrs[:, i], feat_prop], dim=1)
             feat_prop = self.backward_resblocks(feat_prop)
@@ -233,7 +233,7 @@ class Network(nn.Module):
                 conf_map_prop = warp(self.forward_conf_map_prop_prev, flow)
                 
             if is_log and i == t//2:
-                outs['vis']['FW_LR_prev_warp'] = warp(lrs[:, i-1], flow).clone().detach()
+                outs['vis']['FW_LR_prev_warp'] = warp(lrs[:, i-1], flow).detach().clone()
 
             feat_prop = torch.cat([lrs[:, i], feat_prop], dim=1)
             feat_prop = self.forward_resblocks(feat_prop)
@@ -248,10 +248,10 @@ class Network(nn.Module):
             feat_prop, feat_prop_UP, conf_map_prop = self.AA_AF_conf_prop(lrs[:, i], refs[:, i], conf_map, conf_map_prop, index_map, feat_prop, feat_prop_UP, ref_feat_down, ref_feat)
 
             if (is_train and i == 0) or (is_train is False and i == t//2):
-                self.forward_feat_prop_prev = feat_prop.clone().detach()
-                self.forward_flow_prev = forward_flows[:, i, :, :, :].clone().detach()
-                self.forward_feat_prop_UP_prev = feat_prop_UP.clone().detach()
-                self.forward_conf_map_prop_prev = conf_map_prop.clone().detach()
+                self.forward_feat_prop_prev = feat_prop.detach().clone()
+                self.forward_flow_prev = forward_flows[:, i, :, :, :].detach().clone()
+                self.forward_feat_prop_UP_prev = feat_prop_UP.detach().clone()
+                self.forward_conf_map_prop_prev = conf_map_prop.detach().clone()
 
         forward_feat_UP = feat_prop_UP
         conf_map_prop_forward = conf_map_prop
@@ -268,12 +268,12 @@ class Network(nn.Module):
                 lr_down = F.interpolate(lrs[:, t//2], scale_factor=1/2, mode='bicubic', align_corners=False).clamp(0, 1)
                 conf_map_prop, _ = torch.max(torch.cat([conf_map_prop_backward, conf_map_prop_forward], dim=1), dim=1, keepdim=True)
                 ref_downsampled = F.interpolate(refs[:, t//2], scale_factor=1/2, mode='bicubic', align_corners=False).clamp(0, 1)
-                outs['vis']['FW_aa1_fm_ref_aligned{}'.format('' if not self.flag_HD_in else '')] = self.aa1(lr_down, refs[:, t//2], index_map, ref_downsampled, 'aa1', return_fm=True).clone().detach()
+                outs['vis']['FW_aa1_fm_ref_aligned{}'.format('' if not self.flag_HD_in else '')] = self.aa1(lr_down, refs[:, t//2], index_map, ref_downsampled, 'aa1', return_fm=True).detach().clone()
                 if self.aa1.align:
-                    outs['vis']['FW_aa1_ref_aligned{}'.format('' if not self.flag_HD_in else '')] = self.aa1(lr_down, refs[:, t//2], index_map, ref_downsampled, 'aa1').clone().detach()
-                outs['vis']['FW_aa2_fm_ref_aligned{}'.format('' if not self.flag_HD_in else '')] = self.aa2(lrs[:, t//2], refs[:, t//2], index_map, refs[:, t//2], 'aa2', return_fm=True).clone().detach()
+                    outs['vis']['FW_aa1_ref_aligned{}'.format('' if not self.flag_HD_in else '')] = self.aa1(lr_down, refs[:, t//2], index_map, ref_downsampled, 'aa1').detach().clone()
+                outs['vis']['FW_aa2_fm_ref_aligned{}'.format('' if not self.flag_HD_in else '')] = self.aa2(lrs[:, t//2], refs[:, t//2], index_map, refs[:, t//2], 'aa2', return_fm=True).detach().clone()
                 if self.aa2.align:
-                    outs['vis']['FW_aa2_ref_aligned{}'.format('' if not self.flag_HD_in else '')] = self.aa2(lrs[:, t//2], refs[:, t//2], index_map, refs[:, t//2], 'aa2').clone().detach()
+                    outs['vis']['FW_aa2_ref_aligned{}'.format('' if not self.flag_HD_in else '')] = self.aa2(lrs[:, t//2], refs[:, t//2], index_map, refs[:, t//2], 'aa2').detach().clone()
 
                 outs['vis']['conf_map_norm'] = norm_res_vis(conf_map)
                 outs['vis']['conf_map_prop_backward_norm'] = norm_res_vis(conf_map_prop_backward)

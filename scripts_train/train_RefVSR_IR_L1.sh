@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 py3clean ./
 CUDA_VISIBLE_DEVICES=0,1,2,3 python -B -m torch.distributed.launch --nproc_per_node=4 --master_port=9002 run.py \
@@ -9,7 +9,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python -B -m torch.distributed.launch --nproc_per_n
                         --trainer trainer \
                         --data RealMCVSR \
                         --is_crop_valid \
-                        -b 1 \
+                        -b 2 \
                         -th 4 \
                         -dl \
                         -ss \

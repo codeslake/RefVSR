@@ -7,7 +7,6 @@ import importlib
 
 from utils import toGreen, toRed
 import collections
-from models.utils import norm_feat_vis
 
 class SRNet(nn.Module):
     def __init__(self, config):

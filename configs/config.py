@@ -22,6 +22,7 @@ def get_config(project = '', mode = '', config_ = '', data = '', LRS = '', batch
     config.is_verbose = False
     config.save_sample = False
     config.loss = None
+    config.is_amp = False
     config.note = None # note for log
     config.is_crop_valid = False
     config.crop_valid_offset = 12 # if config.is_crop_valid==Ture, LR and Ref images whill be cropped e.g., LR[crop_offset:-crop_offset, :, :]
@@ -137,8 +138,7 @@ def set_data_path(config, data, is_train):
             config.EVAL.HR_data_path = os.path.join(config.data_offset, data, config.EVAL.test_set, 'HR')
             config.EVAL.HR_ref_data_W_path = os.path.join(config.data_offset, data, config.EVAL.test_set, hr_ref_W_path)
             config.EVAL.HR_ref_data_T_path = os.path.join(config.data_offset, data, config.EVAL.test_set, hr_ref_T_path)
-            config.EVAL.vid_name = None
-            # config.EVAL.vid_name = ['0024', '0074', '0121']
+            config.EVAL.vid_name = None # ['0024', '0074', '0121']
 
         config.UW_path = 'UW'
         config.W_path = 'W'

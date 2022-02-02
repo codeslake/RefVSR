@@ -19,11 +19,10 @@ import random
 from trainers import create_trainer
 from utils import *
 from ckpt_manager import CKPT_Manager
-# import warnings
-# warnings.filterwarnings("error")
-
+import warnings
+warnings.filterwarnings("ignore")
 # torch.backends.cudnn.enabled = False
-torch.backends.cudnn.benchmark = True
+# torch.backends.cudnn.benchmark = True
 # torch.autograd.set_detect_anomaly(True)
 
 class Runner():
@@ -47,7 +46,7 @@ class Runner():
 
         ## training vars
         self.states = ['train', 'valid']
-        # self.states = ['valid', 'train']
+        #self.states = ['valid', 'train']
         self.max_epoch = int(math.ceil(config.total_itr / self.trainer.get_itr_per_epoch('train')))
         self.config.max_epoch = self.max_epoch
 
@@ -112,15 +111,12 @@ class Runner():
                             dist.all_reduce(self.norm, op=dist.ReduceOp.SUM, group=self.pg, async_op=False)
 
                         for k, v in self.err_epoch[state].items():
-                            # for k, v in self.err_epoch[state].items():
-                            #     self.err_epoch[state][k] = torch.tensor(v).to(self.config.device)
                             if config.dist: dist.all_reduce(self.err_epoch[state][k], op=dist.ReduceOp.SUM, group=self.pg, async_op=False)
                             self.err_epoch[state][k] = (self.err_epoch[state][k] / self.norm).item()
 
                             if self.rank <= 0:
                                 self.summary.add_scalar('{}_epoch/{}'.format(state, k), self.err_epoch[state][k], epoch)
                                 self.summary.add_scalar('{}_itr/{}'.format(state, k), self.err_epoch[state][k], self.trainer.itr_global['train'])
-
                                 # if state == 'train':
                                 #     for name, param in self.trainer.get_network().named_parameters():
                                 #         if any(check in name for check in ['weight']):
@@ -144,6 +140,9 @@ class Runner():
                             else:
                                 print_logs(state.upper()+' TOTAL', self.config.mode, epoch, self.max_epoch, epoch_time, note=config.note, errs=self.err_epoch[state], log_etc=self.lr, is_overwrite=False)
                                 print('\n')
+                gc.collect()
+                torch.cuda.empty_cache()
+                torch.cuda.ipc_collect()
 
     def iteration(self, epoch, state, is_log):
         is_train = True if state == 'train' else False
@@ -204,9 +203,6 @@ class Runner():
                         print_logs(state.upper(), self.config.mode, epoch, self.max_epoch, itr_time, itr * self.trainer.itr_inc[state], self.trainer.get_itr_per_epoch(state), errs = errs_itr, log_etc = self.lr, is_overwrite = itr > 1)
                         # print('\n')
                         itr_time = time.time()
-
-            # gc.collect()
-            # torch.cuda.empty_cache()
 
 ##########################################################
 def init_dist(backend='nccl', **kwargs):

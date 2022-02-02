@@ -1,3 +1,7 @@
+###############################################################################################
+## The code is adopted from https://github.com/Tengfei-Wang/DCSR/blob/master/model/attention.py
+###############################################################################################
+
 import torch
 from torch import nn
 import torch.nn.functional as F
