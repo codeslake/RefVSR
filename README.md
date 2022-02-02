@@ -28,10 +28,32 @@ This repository contains the official PyTorch implementation of the following pa
 
 ![Ubuntu](https://img.shields.io/badge/Ubuntu-18.0.4-blue.svg?style=plastic)
 ![Python](https://img.shields.io/badge/Python-3.8.8-green.svg?style=plastic)
-![PyTorch](https://img.shields.io/badge/PyTorch-1.8.0-green.svg?style=plastic)
-![CUDA](https://img.shields.io/badge/CUDA-10.2%20&%2011.1-green.svg?style=plastic)
+![PyTorch](https://img.shields.io/badge/PyTorch-1.8.0%20&%201.10.2-green.svg?style=plastic)
+![CUDA](https://img.shields.io/badge/CUDA-10.2%20&%2011.1%20&%2011.3-green.svg?style=plastic)
 
 1. **Environment setup**
+	```bash
+	$ git clone https://github.com/codeslake/RefVSR.git
+	$ cd RefVSR
+
+	$ conda create -y name RefVSR pythron 3.8 && conda activate RefVSR
+
+    ## Install pytorch (Change cudatoolkit version accordingly. Below uses 11.3)
+	$ conda installytorch torchvision torchaudio cudatoolkit=11.3 -cytorch
+
+    ## Install requirements
+    # for CUDA10.2
+	$ sh install_cudnn102.sh
+    # for CUDA11.1
+	$ sh install_cudnn111.sh
+    # for CUDA11.3
+	$ sh install_cudnn113.sh
+	```
+
+	> **Note:**
+	>
+	> * For using PyTorch amp, it is recommended to use PyTorch1.10 with CUDA11.3. PyTorch < 1.10 is known to have problem in running amp with [`torch.nn.functional.grid_sample()`](https://github.com/pytorch/pytorch/issues/42218) needed for warping frames.
+
 2. **Datasets**
 3. **Pre-trained models**
 
