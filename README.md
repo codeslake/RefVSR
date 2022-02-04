@@ -39,7 +39,7 @@ This repository contains the official PyTorch implementation of the following pa
 	$ conda create -y name RefVSR pythron 3.8 && conda activate RefVSR
 
     ## Install pytorch (change the version for cudatoolkit accordingly.)
-	$ conda installpytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+	$ conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 
     ## Install requirements (select one from below.)
     # for CUDA10.2
@@ -52,7 +52,7 @@ This repository contains the official PyTorch implementation of the following pa
 
 	> **Note:**
 	>
-	> * For using PyTorch AMP, it is recommended to use PyTorch >= 1.10.0 with CUDA11.3. PyTorch < 1.10 is known to have [a problem in running amp with `torch.nn.functional.grid_sample()`](https://github.com/pytorch/pytorch/issues/42218) needed for warping frames.
+	> * For using PyTorch AMP, it is recommended to use PyTorch >= 1.10.0 with CUDA11.3. PyTorch < 1.10 is known to have [a problem in running amp with `torch.nn.functional.grid_sample()`](https://github.com/pytorch/pytorch/issues/42218) needed for inter-frame alignment.
 
 2. **Datasets**
     * Download and unzip [the RealMCVSR dataset]() under `[DATASET_ROOT]`:
@@ -118,7 +118,7 @@ $ sh ./scripts_eval/eval_RefVSR_IR_L1.sh
 > **Note:**
 >
 > * For all models, GPU with 24GB memory is required. We use Nvidia GeForce RTX 3090 in practice.
-> * Make sure to open the script file to set proper GPU device by modifying `CUDA_VISIBLE_DEVICES=...`.
+> * Make sure to modify the script file and indicate proper GPU device by modifying `CUDA_VISIBLE_DEVICES=...`.
 > * Testing results will be saved in `[LOG_ROOT]/RefVSR_CVPR2022/[mode]/result/quan_qual/[mode]_[epoch]/[data]`
 >   * `[mode]` is the name of model defined in the option `--mode` in an evalution script.
 >   * `[LOG_ROOT]` is set to `/Jarvis/logs/junyonglee` by default. Refer [here](https://github.com/codeslake/RefVSR/wiki/Log-Details).
@@ -134,11 +134,11 @@ $ sh ./scripts_eval/eval_RefVSR_IR_L1.sh
     > **Note:**
     >
     > * For the smaller model, type `sh ./scripts_train/train-amp_RefVSR_small_MFID.sh`
-    > * Make sure to open the script file to set proper GPU devices, number of GPUs, and batch size by modifying `CUDA_VISIBLE_DEVICES=...`, `--npro_per_node` and `-b` options, respectively.
-    >   * The model reported in the main paper uses the total batch size of 8, the mulpication of numbers set with options `--nproc_per_node` and `-b`.
+    > * Make sure to modify the script file and set proper GPU devices, number of GPUs, and batch size by modifying `CUDA_VISIBLE_DEVICES=...`, `--npro_per_node` and `-b` options, respectively.
+    >   * The model reported in the main paper uses the total batch size of 8, the multipliication of numbers in options `--nproc_per_node` and `-b`.
 
 2. The adaptation stage (Sec. 4.2. in the main paper)
-    * Set the path of the checkpoint saved from the pre-training stage with `-ra` option:
+    * Set the path of the checkpoint trained from the pre-training stage with `-ra` option:
 
         ```bash
         $ vim ./scripts_train/train_RefVSR_MFID_8K.sh
@@ -162,8 +162,8 @@ $ sh ./scripts_eval/eval_RefVSR_IR_L1.sh
         > **Note:**
         >
         > * For the smaller model, type `sh ./scripts_train/train-amp_RefVSR_small_MFID_8K.sh`
-        > * Make sure to open the script file to set proper GPU devices, number of GPUs, and batch size by modifying `CUDA_VISIBLE_DEVICES=...`, `--npro_per_node` and `-b` options, respectively.
-        >   * The model reported in the main paper uses the total batch size of 2, the mulpication of numbers set with options `--nproc_per_node` and `-b`.
+        > * Make sure to modify the script file to set proper GPU devices, number of GPUs, and batch size by modifying `CUDA_VISIBLE_DEVICES=...`, `--npro_per_node` and `-b` options, respectively.
+        >   * The model reported in the main paper uses the total batch size of 2, the multiplication of numbers in options `--nproc_per_node` and `-b`.
 
 
 ## Wiki
