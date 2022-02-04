@@ -43,11 +43,11 @@ This repository contains the official PyTorch implementation of the following pa
 
     ## Install requirements (select one from below.)
     # for CUDA10.2
-	$ sh install_cudnn102.sh
+	$ sh install/install_cudnn102.sh
     # for CUDA11.1
-	$ sh install_cudnn111.sh
+	$ sh install/install_cudnn111.sh
     # for CUDA11.3 (For running small models with pytorch AMP)
-	$ sh install_cudnn113.sh
+	$ sh install/install_cudnn113.sh
 	```
 
 	> **Note:**
@@ -55,9 +55,68 @@ This repository contains the official PyTorch implementation of the following pa
 	> * For using PyTorch AMP, it is recommended to use PyTorch >= 1.10.0 with CUDA11.3. PyTorch < 1.10 is known to have [a problem in running amp with `torch.nn.functional.grid_sample()`](https://github.com/pytorch/pytorch/issues/42218) needed for warping frames.
 
 2. **Datasets**
+    * Download and unzip [the RealMCVSR dataset]() under `[DATASET_ROOT]`:
+
+        ```
+        ├── [DATASET_ROOT]
+        │   ├── RealMCVSR
+        │   │   ├── train                       # training set
+        │   │   │   ├── HR                      # videos in original resolution 
+        │   │   │   │   ├── T                   # telephoto videos
+        │   │   │   │   │   ├── 0002            # video clip
+        │   │   │   │   │   │   ├── 0000.png    # frames
+        │   │   │   │   │   │   ├── ...         
+        │   │   │   │   │   ├── ....            
+        │   │   │   │   ├── UW                  # ultra-wide-angle videos
+        │   │   │   │   ├── W                   # wide-angle videos
+        │   │   │   ├── LRx2                    # 2x down sampled videos
+        │   │   │   ├── LRx4                    # 4x downsampled videos
+        │   │   ├── test                        # testing set
+        │   │   │   ├── ...
+        │   │   ├── valid                       # validation set
+        │   │   │   ├── ...
+        ```
+
+        > **Note:**
+        >
+        > * `[DATASET_ROOT]` is currently set to `/data1/junyonglee`, which can be modified by [`config.data_offset`](https://github.com/codeslake/RefVSR/blob/main/configs/config.py#L56) in `./configs/config.py`.
 3. **Pre-trained models**
 
 ## Testing models of ArXiv2022
+```shell
+## Real-world 4x super-resolution (HD to 8K)
+# Ours in Fig. 8 of the main paper (the model trained with pre-training and adaptaion stages)
+sh ./scripts_eval/eval_RefVSR_MFID_8K.sh
+
+# A smaller model (not shown in the paper, requires CUDA 11.3 and PyTorch > 1.10.x)
+sh ./scripts_eval/eval_amp_RefVSR_small_MFID_8K.sh
+```
+
+> **Note:**
+>
+> * For the first model, GPU with 48GB memory is required. We use Nvidia Quadro 8000 in practice.
+> * For the second smaller model, GPU with 24GB memory is required. We use Nvidia GeForce RTX 3090 in practice.
+
+
+```shell
+## Table 2 in the main paper (models trained with the pre-training stage)
+# Ours
+sh ./scripts_eval/eval_RefVSR_MFID.sh
+
+# Ours-l1
+sh ./scripts_eval/eval_RefVSR_L1.sh
+
+# Ours-small-l1
+sh ./scripts_eval/eval_amp_RefVSR_small_L1.sh
+
+# Ours-IR-l1
+sh ./scripts_eval/eval_RefVSR_IR_L1.sh
+
+```
+
+> **Note:**
+>
+> * For all models, GPU with 24GB memory is required. We use Nvidia GeForce RTX 3090 in practice.
 
 ## Wiki
 * [Logging](https://github.com/codeslake/RefVSR/wiki/Log-Details)
