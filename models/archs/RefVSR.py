@@ -28,7 +28,7 @@ class Network(nn.Module):
             param.requires_grad = False
 
         self.feature_match = FeatureMatching(scale=self.scale, stride=1, flag_HD_in=self.flag_HD_in)
-        ## AlignedAttention
+        ## AlignedAttention (DCSR, ICCV2021)
             # - scale: kernel size and stride for deform conv layer
             # (basically local patch size to align)
             # => 2*size of LRxX / size of index map (size of LRx4)
@@ -41,22 +41,22 @@ class Network(nn.Module):
         m_head1 = [BasicBlock(default_conv, 3, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True)),
                    BasicBlock(default_conv, mid_channels, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]
         m_head2 = [BasicBlock(default_conv, mid_channels, mid_channels, 3, stride=2, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True)),
-                   BasicBlock(default_conv, mid_channels, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]    
+                   BasicBlock(default_conv, mid_channels, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]
 
         conf_fusion = [BasicBlock(default_conv, 2, 16, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True)),
-                   BasicBlock(default_conv, 16, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]    
+                   BasicBlock(default_conv, 16, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]
         conf_fusion2 = [BasicBlock(default_conv, 2, 16, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True)),
-                   BasicBlock(default_conv, 16, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]    
+                   BasicBlock(default_conv, 16, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]
         conf_fusion_BWFW = [BasicBlock(default_conv, 2, 16, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True)),
-                   BasicBlock(default_conv, 16, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]    
+                   BasicBlock(default_conv, 16, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]
 
         feat_fusion = [BasicBlock(default_conv, 2*mid_channels, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True)),
-                   BasicBlock(default_conv, mid_channels, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]    
+                   BasicBlock(default_conv, mid_channels, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]
         feat_fusion2_1 = [BasicBlock(default_conv, 2*mid_channels, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]
         feat_fusion2 = [BasicBlock(default_conv, 2*mid_channels, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True)),
-                   BasicBlock(default_conv, mid_channels, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]    
+                   BasicBlock(default_conv, mid_channels, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]
         feat_fusion_BWFW = [BasicBlock(default_conv, 2*mid_channels, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True)),
-                   BasicBlock(default_conv, mid_channels, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]    
+                   BasicBlock(default_conv, mid_channels, mid_channels, 3, stride=1, bias=True, bn=False, act=nn.LeakyReLU(0.2, inplace=True))]
 
         self.ref_encoder1 = nn.Sequential(*m_head1)
         self.res1 = ResList(4, mid_channels)
@@ -90,26 +90,25 @@ class Network(nn.Module):
         self.conv_hr = nn.Conv2d(mid_channels, mid_channels, 3, 1, 1)
         self.conv_last = nn.Conv2d(mid_channels, 3, 3, 1, 1)
 
-        # activation function
         self.lrelu = nn.LeakyReLU(negative_slope=0.1, inplace=True)
 
         self.forward_feat_prop_prev = None
         self.forward_flow_prev = None
         self.forward_feat_prop_UP_prev = None
         self.forward_conf_map_prop_prev = None
+        self.frame_itr_num = 0
+        self.max_frame_itr_num = self.config.reset_branch
 
+    ## Upsampling module
     def compute_up(self, backward_feat_UP, forward_feat_UP, conf_map_backward, conf_map_forward, base):
-        ##
         conf_map_backward = F.interpolate(conf_map_backward, scale_factor=2, mode='bicubic', align_corners=False).clamp(0, 1)
         conf_map_forward = F.interpolate(conf_map_forward, scale_factor=2, mode='bicubic', align_corners=False).clamp(0, 1)
-
 
         cat_features = torch.cat([backward_feat_UP, forward_feat_UP], dim=1)
         out = self.fusion_UP(cat_features)
         alpha = self.conf_fusion_BWFW(torch.cat([conf_map_backward, conf_map_forward], dim=1))
         out = out + alpha * self.feat_fusion_BWFW(cat_features)
         out = self.feat_decoder_BWFW(out)
-        ##
 
         if self.scale == 4:
             out = self.lrelu(self.upsample2(out))
@@ -118,16 +117,24 @@ class Network(nn.Module):
         out = self.conv_last(out) + base
         return out
 
+    ## The Reference Alignment and Propagation (RAP) module (Fig. 4 of the main paper).
+    ## - The paper explains the simplified version of RAP module, here, we use 2-level RAP
     def AA_AF_conf_prop(self, lr, ref, conf_map, conf_map_prop, index_map, feat_prop, feat_prop_UP, ref_feat_down, ref_feat):
+        ## the first level of the RAP module
         lr_down = F.interpolate(lr, scale_factor=1/2, mode='bicubic', align_corners=False).clamp(0, 1)
+        # reference alignment
         ref_feat_aligned = self.aa1(lr_down, ref, index_map, ref_feat_down, 'aa1')
+        # propagative temporal fusion
         cat_features = torch.cat([feat_prop, ref_feat_aligned], dim=1)
         alpha = self.conf_fusion(torch.cat([conf_map_prop, conf_map], dim=1))
         feat_prop = feat_prop + alpha * self.feat_fusion(cat_features)
         feat_prop = self.feat_decoder(feat_prop)
 
-        feat_prop_UP = self.feat_fusion2_1(torch.cat([feat_prop_UP, self.upsample1(feat_prop)], dim=1))
+        ## the second level of the RAP module
+        # reference alignment
         ref_feat_aligned_UP = self.aa2(lr, ref, index_map, ref_feat, 'aa2')
+        # propagative temporal fusion
+        feat_prop_UP = self.feat_fusion2_1(torch.cat([feat_prop_UP, self.upsample1(feat_prop)], dim=1)) # aggregates upampled features of the preovious recurrent step
         cat_features = torch.cat([feat_prop_UP, ref_feat_aligned_UP], dim=1)
         conf_map_prop_UP = F.interpolate(conf_map_prop, scale_factor=2, mode='bicubic', align_corners=False).clamp(0, 1)
         conf_map_UP = F.interpolate(conf_map, scale_factor=2, mode='bicubic', align_corners=False).clamp(0, 1)
@@ -135,29 +142,39 @@ class Network(nn.Module):
         feat_prop_UP = feat_prop_UP + alpha * self.feat_fusion2(cat_features)
         feat_prop_UP = self.feat_decoder2(feat_prop_UP)
 
+        # confidence accumulation
         conf_map_prop, _ = torch.max(torch.cat([conf_map_prop, conf_map], dim=1), dim=1, keepdim=True)
 
         return feat_prop, feat_prop_UP, conf_map_prop
 
     def forward(self, lrs, refs, is_first_frame, is_log=False, is_train=False):
-        """Forward function for BasicVSR.
+        """Forward function for RefVSR.
         Args:
             lrs (Tensor): Input LR sequence with shape (n, t, c, h, w).
+            refs (Tensor): Input Ref sequence with shape (n, t, c, h, w). None: Spatial resolution of the tensors are twice as the LR during training, equal during validation and evaluation.
+            is_first_frame (boolean): whether lrs[:, 0] and refs[:, 0] are the first frame of a video sequence.
+            is_log (boolean): whether to return samples (e.g., confidence map, warppred image, etc. for debugging. The return is enabled when config.save_sample is True.)
+            is_train (boolean): whether it is trainig phase.
         Returns:
             Tensor: Output HR (SR result of the center LR frame) with shape (n, c, 4h, 4w).
         """
         outs = collections.OrderedDict()
         if is_log:
             outs['vis'] = collections.OrderedDict()
-
         n, t, c, h, w = lrs.size()
 
+        # enable is_first_frame True when number of iterations passed the pre-set limit (= resests features propagation of the forward branch).
+        if is_train == False:
+            if self.max_frame_itr_num is not None and self.frame_itr_num == self.max_frame_itr_num:
+                is_first_frame = True
+
+        # if is_first_frame is True, forward branches processes frames from t=0, otherwise, uses saved features from the previous iteration computes only the center frame (t//2).
         if is_first_frame:
             range_start = 0
         else:
             range_start = t//2 if is_train is False else 0
 
-        ## Computing forward & backward flows
+        # computing forward & backward flows (S in Fig. 3 of the paper)
         with torch.no_grad():
             forward_flows = []
             backward_flows = []
@@ -168,7 +185,7 @@ class Network(nn.Module):
             forward_flows = torch.cat(forward_flows, dim=1)
             backward_flows = torch.cat(backward_flows, dim=1)
 
-        ## Computing index_map and confidec between LR and Ref
+        # computing index_map and confidec between LR and Ref (cosine similarity part in the RAP module in Fig. 4 of the main paper)
         conf_maps = []
         index_maps = []
         for i in range(0, t):
@@ -176,17 +193,15 @@ class Network(nn.Module):
                 conf_map, index_map = self.feature_match(lrs[:, i], refs[:, i])
             else:
                 conf_map, index_map = None, None
-
             conf_maps.append(conf_map)
             index_maps.append(index_map)
 
-        # backward-time propgation
+        ## BACKWARD BRANCH ##
         feat_prop = lrs.new_zeros(n, self.mid_channels, h, w)
         feat_prop_UP = lrs.new_zeros(n, self.mid_channels, h*2, w*2)
         conf_map_prop = lrs.new_zeros(n, 1, h, w)
         for i in range(t - 1, t//2 - 1, -1):
-            # print('backward:', i)
-
+            ## inter-frame alignment (warp in Fig. 3 of the main paper)
             if i < t - 1:  # no warping required for the last timestep
                 flow = backward_flows[:, i]
                 feat_prop = warp(feat_prop, flow)
@@ -195,22 +210,23 @@ class Network(nn.Module):
                 if is_log and i == t//2:
                     outs['vis']['BW_LR_next_warp'] = warp(lrs[:, i+1], flow).detach().clone()
 
+            ## feature aggregation (R in Fig. 3 of the main paper)
             feat_prop = torch.cat([lrs[:, i], feat_prop], dim=1)
             feat_prop = self.backward_resblocks(feat_prop)
 
-            ##
+            ## The Reference Alignment and Propagation (RAP) module (Fig. 4 in the main paper)
+            # pre-computed matching confidence and mathcing index
             conf_map = conf_maps[i]
             index_map = index_maps[i]
-
+            # reference alignment and propagative temporal fusion
             ref_feat = self.res1(self.ref_encoder1(refs[:, i])) # keeps scale
             ref_feat_down = self.res2(self.ref_encoder2(ref_feat)) # downscales
-
             feat_prop, feat_prop_UP, conf_map_prop = self.AA_AF_conf_prop(lrs[:, i], refs[:, i], conf_map, conf_map_prop, index_map, feat_prop, feat_prop_UP, ref_feat_down, ref_feat)
 
         backward_feat_UP = feat_prop_UP
         conf_map_prop_backward = conf_map_prop
 
-        # forward-time propagation and upsampling
+        ## FORWARD BRANCH ##
         if is_first_frame:
             feat_prop = torch.zeros_like(feat_prop)
             feat_prop_UP = torch.zeros_like(backward_feat_UP)
@@ -220,7 +236,7 @@ class Network(nn.Module):
             range_start = t//2 if is_train is False else 0
 
         for i in range(range_start, t//2+1):
-
+            ## inter-frame alignment (warp in Fig. 3 of the main paper)
             if i > range_start: # no warping required for the first timestep
                 flow = forward_flows[:, i-1, :, :, :]
                 feat_prop = warp(feat_prop, flow)
@@ -231,38 +247,46 @@ class Network(nn.Module):
                 feat_prop = warp(self.forward_feat_prop_prev, flow)
                 feat_prop_UP = warp(self.forward_feat_prop_UP_prev, F.interpolate(input=flow, scale_factor=2, mode='bilinear', align_corners=True) * 2.0)
                 conf_map_prop = warp(self.forward_conf_map_prop_prev, flow)
-                
+
             if is_log and i == t//2:
                 outs['vis']['FW_LR_prev_warp'] = warp(lrs[:, i-1], flow).detach().clone()
 
+            ## feature aggregation (R in Fig. 3 of the main paper)
             feat_prop = torch.cat([lrs[:, i], feat_prop], dim=1)
             feat_prop = self.forward_resblocks(feat_prop)
 
-            # print('forward:', i)
+            ## The Reference Alignment and Propagation (RAP) module (Fig. 4 in the main paper)
+            # pre-computed matching confidence and mathcing index
             conf_map = conf_maps[i]
             index_map = index_maps[i]
-
+            # reference alignment and propagative temporal fusion
             ref_feat = self.res1(self.ref_encoder1(refs[:, i])) # keeps scale
             ref_feat_down = self.res2(self.ref_encoder2(ref_feat)) # downscales
-
             feat_prop, feat_prop_UP, conf_map_prop = self.AA_AF_conf_prop(lrs[:, i], refs[:, i], conf_map, conf_map_prop, index_map, feat_prop, feat_prop_UP, ref_feat_down, ref_feat)
 
+            # keep features, flow, confidence maps for the next iteration to compute only the center frame.
             if (is_train and i == 0) or (is_train is False and i == t//2):
                 self.forward_feat_prop_prev = feat_prop.detach().clone()
                 self.forward_flow_prev = forward_flows[:, i, :, :, :].detach().clone()
                 self.forward_feat_prop_UP_prev = feat_prop_UP.detach().clone()
                 self.forward_conf_map_prop_prev = conf_map_prop.detach().clone()
 
+        ## U in Fig. 2 of the main paper
         forward_feat_UP = feat_prop_UP
         conf_map_prop_forward = conf_map_prop
-
         base = F.interpolate(lrs[:, t//2], scale_factor=self.scale, mode='bicubic', align_corners=False).clamp(0, 1)
         out = self.compute_up(backward_feat_UP, forward_feat_UP, conf_map_prop_backward, conf_map_prop_forward, base)
-        
+
+        # reset iteration count if is_first_frame is True
         if is_train is False:
+            if is_first_frame:
+                self.frame_itr_num = 0
+            self.frame_itr_num += 1
+
             out = out.clamp(0, 1)
         outs['result'] = out
 
+        ################################## Debugging Samples ##################################
         if is_log and self.config.save_sample:
             with torch.no_grad():
                 lr_down = F.interpolate(lrs[:, t//2], scale_factor=1/2, mode='bicubic', align_corners=False).clamp(0, 1)
@@ -285,6 +309,7 @@ class Network(nn.Module):
                 outs['eval_vis']['conf_map_prop'] = conf_map_prop
                 outs['eval_vis']['conf_map_prop_backward'] = conf_map_prop_backward
                 outs['eval_vis']['conf_map_prop_forward'] = conf_map_prop_forward
+        #######################################################################################
 
         return outs
 

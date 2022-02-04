@@ -18,15 +18,15 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
     config.wi = None # weight init (xavier)
     config.win = None # weight init (normal)
 
-    config.patch_size = 128 
+    config.patch_size = 128
     config.frame_itr_num = 9
     config.frame_num = 7
 
     config.loss = '1*L1_lf+0.1*MFID_ref' # SRA
     config.CX_vgg_layer = 'relu4_4'
-    config.is_use_T = True 
+    config.is_use_T = True
 
-    ## SRA
+    ## Adaptation stage
     config.flag_HD_in = True # SRA
     config.scale = 4 # SR scale (2 | 4)
 
@@ -45,6 +45,8 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
     config.network = 'RefVSR'
     config.num_blocks = 30
     config.mid_channels = 48
+    config.reset_branch = None
+    # config.reset_branch = config.frame_itr_num # enable this if results contain holes
 
     ## Dataset
     if config.data == 'RealMCVSR':
@@ -52,9 +54,8 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
         video_num = 32
 
     config.total_itr = 50000
-    config.IpE = math.floor((len(list(range(0, total_frame_num - (config.frame_itr_num-1), config.frame_itr_num)))) / actual_batch_size) * config.frame_itr_num
-    #max_epoch = math.floor(config.total_itr / IpE)
-
+    # IpE = math.floor((len(list(range(0, total_frame_num - (config.frame_itr_num-1), config.frame_itr_num)))) / actual_batch_size) * config.frame_itr_num
+    # max_epoch = math.floor(config.total_itr / IpE)
     if config.LRS == 'LD':
         # lr_decay
         config.decay_period = [400000]

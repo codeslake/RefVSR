@@ -233,7 +233,7 @@ def eval_quan_FOV(config):
 
                 PSNR_fi = psnr_masked(output_cpu_, gt_cpu, mask_fi)
                 PSNR_fo = psnr_masked(output_cpu_, gt_cpu, mask_fo)
-                    
+
                 SSIM_fi = ssim_masked(output_cpu_, gt_cpu, mask_fi)
                 SSIM_fo = ssim_masked(output_cpu_, gt_cpu, mask_fo)
 
@@ -258,7 +258,7 @@ def eval_quan_FOV(config):
             SSIM_mean_fi[key] += SSIM_fi
             SSIM_mean_fo[key] += SSIM_fo
             SSIM_mean_fr[key] += SSIM_fr
-                
+
             if config.EVAL.is_debug:
                 print(key, 'raw:', PSNR_fi, PSNR_fo, PSNR_fr, SSIM_fi, SSIM_fo, SSIM_fr)
                 print(key, 'sum:', PSNR_mean_fi[key], PSNR_mean_fo[key], PSNR_mean_fr[key], SSIM_mean_fi[key], SSIM_mean_fo[key], SSIM_mean_fr[key], '\n')
@@ -384,24 +384,25 @@ def eval_quan_qual(config):
             output = outs['SR_UW']
 
         PSNR = SSIM = 0
-        if 'SR_UW_png' in outs.keys() or 'SR_UW' in outs.keys():
-            gt = outs['HR_UW']
+        if config.EVAL.is_quan:
+            if 'SR_UW_png' in outs.keys() or 'SR_UW' in outs.keys():
+                gt = outs['HR_UW']
 
-            # quantitative
-            output_cpu = output.cpu().numpy()[0].transpose(1, 2, 0)
-            gt_cpu = gt.cpu().numpy()[0].transpose(1, 2, 0)
+                # quantitative
+                output_cpu = output.cpu().numpy()[0].transpose(1, 2, 0)
+                gt_cpu = gt.cpu().numpy()[0].transpose(1, 2, 0)
 
 
-            # PSNR = psnr(output_cpu, gt_cpu)
-            PSNR = errs['PSNR'].item()
-            if config.flag_HD_in:
-                output_cpu_ = cv2.resize(output_cpu, dsize=(0, 0), fx=1/config.scale, fy=1/config.scale, interpolation=cv2.INTER_CUBIC)
-            else:
-                output_cpu_ = output_cpu
+                # PSNR = psnr(output_cpu, gt_cpu)
+                PSNR = errs['PSNR'].item()
+                if config.flag_HD_in:
+                    output_cpu_ = cv2.resize(output_cpu, dsize=(0, 0), fx=1/config.scale, fy=1/config.scale, interpolation=cv2.INTER_CUBIC)
+                else:
+                    output_cpu_ = output_cpu
 
-            h, w, c = output_cpu_.shape
-                
-            SSIM = ssim(output_cpu_, gt_cpu)
+                h, w, c = output_cpu_.shape
+
+                SSIM = ssim(output_cpu_, gt_cpu)
 
         PSNR_mean = PSNR_mean + PSNR
         SSIM_mean = SSIM_mean + SSIM
@@ -443,97 +444,9 @@ def eval_quan_qual(config):
     PSNR_mean_total = (PSNR_mean_total + PSNR_mean) / total_norm
     SSIM_mean_total = (SSIM_mean_total + SSIM_mean) / total_norm
 
-    sys.stdout.write('\n[TOTAL {}|{}] PSNR: {:.5f}  SSIM: {:.5f} ({:.5f}sec)'.format(ckpt_name, config.EVAL.data, PSNR_mean_total, SSIM_mean_total, total_itr_time))
+    sys.stdout.write('\n[TOTAL {}|{}] PSNR: {:.5f}  SSIM: {:.5f} ({:.5f}sec)\n'.format(ckpt_name, config.EVAL.data, PSNR_mean_total, SSIM_mean_total, total_itr_time))
     with open(os.path.join(save_path_root_deblur_score, 'score_{}_{}.txt'.format(config.EVAL.data, config.EVAL.eval_mode)), 'a') as file:
         file.write('\n[TOTAL {}|{}] PSNR: {:.5f} SSIM: {:.5f} ({:.5f}sec)\n'.format(ckpt_name, config.EVAL.data, PSNR_mean_total, SSIM_mean_total, total_itr_time))
-        file.close()
-
-def eval_qual(config):
-    mode = config.EVAL.eval_mode
-    network, model, save_path_root_deblur, save_path_root_deblur_score, ckpt_name = init(config, mode)
-
-    ##
-    total_norm = 0
-    frame_len_prev = 0
-    total_itr_time = 0
-    total_itr_time_video = 0
-
-    for i, inputs in enumerate(model.data_loader_eval):
-        is_first_frame = inputs['is_first'][0].item()
-
-        # for k in inputs.keys():
-        #     print(k, inputs[k].size())
-        if 'is_continue' in inputs.keys() and inputs['is_continue'][0].item():
-            print('passing, video', inputs['video_name'][0])
-            frame_len_prev += 1
-            continue
-
-        if is_first_frame:
-            if i > 0:
-                total_itr_time = total_itr_time + total_itr_time_video
-                total_itr_time_video = total_itr_time_video / frame_len_prev
-
-                print('[MEAN EVAL {}|{}|{}][{}/{}] ({:.5f}sec)\n\n'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0], inputs['video_len'][0], total_itr_time_video))
-                with open(os.path.join(save_path_root_deblur_score, 'score_{}_{}.txt'.format(config.EVAL.data, config.EVAL.eval_mode)), 'a') as file:
-                    file.write('[MEAN EVAL {}|{}|{}][{}/{}] ({:.5f}sec)\n\n'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0], inputs['video_len'][0], total_itr_time_video))
-                    file.close()
-
-            total_itr_time_video = 0
-
-        #########################
-        init_time = time.time()
-        results = model.evaluation(inputs)
-        itr_time = time.time() - init_time
-        #########################
-
-        ## evaluation
-        errs = results['errs']
-        outs = results['vis']
-
-        try:
-            inp = outs['LR_UW_png']
-            output = outs['SR_UW_png']
-        except:
-            inp = outs['LR_UW']
-            output = outs['SR_UW']
-
-        # print(inp.size(), output.size())
-        frame_name = inputs['frame_name'][0]
-        print('[EVAL {}|{}|{}][{}/{}][{}/{}] {} ({:.5f}sec)'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0]+1, inputs['video_len'][0], inputs['frame_idx'][0]+1, inputs['frame_len'][0], frame_name, itr_time))
-        with open(os.path.join(save_path_root_deblur_score, 'score_{}_{}.txt'.format(config.EVAL.data, config.EVAL.eval_mode)), 'w' if (i == 0) else 'a') as file:
-            file.write('[EVAL {}|{}|{}][{}/{}][{}/{}] {} ({:.5f}sec)\n'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0]+1, inputs['video_len'][0], inputs['frame_idx'][0]+1, inputs['frame_len'][0], frame_name, itr_time))
-            file.close()
-
-        # qualitative
-        ## create output dir for a video
-        for iformat in ['png', 'jpg']:
-            frame_name_no_ext = frame_name.split('.')[0]
-            save_path_deblur = os.path.join(save_path_root_deblur, iformat)
-            Path(save_path_deblur).mkdir(parents=True, exist_ok=True)
-
-            Path(os.path.join(save_path_deblur, 'input', inputs['video_name'][0])).mkdir(parents=True, exist_ok=True)
-            save_file_path_deblur_input = os.path.join(save_path_deblur, 'input', inputs['video_name'][0], '{}.{}'.format(frame_name_no_ext, iformat))
-            vutils.save_image(inp, '{}'.format(save_file_path_deblur_input), nrow=1, padding = 0, normalize = False)
-
-            Path(os.path.join(save_path_deblur, 'output', inputs['video_name'][0])).mkdir(parents=True, exist_ok=True)
-            save_file_path_deblur_output = os.path.join(save_path_deblur, 'output', inputs['video_name'][0], '{}.{}'.format(frame_name_no_ext, iformat))
-            vutils.save_image(output, '{}'.format(save_file_path_deblur_output), nrow=1, padding = 0, normalize = False)
-
-            if 'gt' in inputs.keys():
-                Path(os.path.join(save_path_deblur, 'gt', inputs['video_name'][0])).mkdir(parents=True, exist_ok=True)
-                save_file_path_deblur_gt = os.path.join(save_path_deblur, 'gt', inputs['video_name'][0], '{}.{}'.format(frame_name_no_ext, iformat))
-                vutils.save_image(gt, '{}'.format(save_file_path_deblur_gt), nrow=1, padding = 0, normalize = False)
-
-        total_itr_time_video = total_itr_time_video + itr_time
-        total_norm = total_norm + 1
-        frame_len_prev = inputs['frame_len'][0]
-
-    # total average
-    total_itr_time = (total_itr_time + total_itr_time_video) / total_norm
-
-    sys.stdout.write('\n[TOTAL {}|{}] ({:.5f}sec)'.format(ckpt_name, config.EVAL.data, total_itr_time))
-    with open(os.path.join(save_path_root_deblur_score, 'score_{}_{}.txt'.format(config.EVAL.data, config.EVAL.eval_mode)), 'a') as file:
-        file.write('\n[TOTAL {}|{}] ({:.5f}sec)\n'.format(ckpt_name, config.EVAL.data, total_itr_time))
         file.close()
 
 def eval_quan_conf(config):
@@ -637,7 +550,7 @@ def eval_quan_conf(config):
         #
 
         frame_name = inputs['frame_name'][0]
-        print('[EVAL {}|{}|{}][{}/{}][{}/{}] {} ({:.5f}sec)'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0]+1, inputs['video_len'][0], inputs['frame_idx'][0]+1, inputs['frame_len'][0], frame_name, itr_time))
+        print('[EVAL {}|{}|{}][{}/{}][{}/{}] {} ({:.5f}sec)\n'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0]+1, inputs['video_len'][0], inputs['frame_idx'][0]+1, inputs['frame_len'][0], frame_name, itr_time))
         with open(os.path.join(save_path_root_deblur_score, 'score_{}_{}.txt'.format(config.EVAL.data, config.EVAL.eval_mode)), 'w' if (i == 0) else 'a') as file:
             file.write('[EVAL {}|{}|{}][{}/{}][{}/{}] {} ({:.5f}sec)\n'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0]+1, inputs['video_len'][0], inputs['frame_idx'][0]+1, inputs['frame_len'][0], frame_name, itr_time))
             file.close()
@@ -689,7 +602,7 @@ def eval_quan_conf(config):
     # total average
     total_itr_time = (total_itr_time + total_itr_time_video) / total_norm
 
-    sys.stdout.write('\n[TOTAL {}|{}] ({:.5f}sec)'.format(ckpt_name, config.EVAL.data, total_itr_time))
+    sys.stdout.write('\n[TOTAL {}|{}] ({:.5f}sec)\n'.format(ckpt_name, config.EVAL.data, total_itr_time))
     with open(os.path.join(save_path_root_deblur_score, 'score_{}_{}.txt'.format(config.EVAL.data, config.EVAL.eval_mode)), 'a') as file:
         file.write('\n[TOTAL {}|{}] ({:.5f}sec)\n'.format(ckpt_name, config.EVAL.data, total_itr_time))
         file.close()
@@ -711,8 +624,6 @@ def eval(config):
         with torch.no_grad():
             if 'quan_qual' in eval_mode:
                 eval_quan_qual(config)
-            elif 'qual' in eval_mode:
-                eval_qual(config)
             elif 'FOV' in eval_mode:
                 eval_quan_FOV(config)
             elif 'conf' in eval_mode:

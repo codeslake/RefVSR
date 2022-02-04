@@ -10,6 +10,7 @@ CUDA_VISIBLE_DEVICES=4,5,6,7 torchrun --nproc_per_node=4 --master_port=9000 run.
                         --data RealMCVSR \
                         -b 2 \
                         -th 4 \
-                        -r 28 \
+                        -r 73 \
+                        -ss \
                         -dist \
                         -proc 4

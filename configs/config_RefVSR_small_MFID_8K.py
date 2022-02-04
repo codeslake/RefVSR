@@ -27,7 +27,7 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
     config.CX_vgg_layer = 'relu4_4'
     config.is_use_T = True
 
-    ## SRA
+    ## Adaptation stage
     config.flag_HD_in = True # SRA
     config.scale = 4 # SR scale (2 | 4)
 
@@ -46,6 +46,7 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
     config.network = 'RefVSR'
     config.num_blocks = 24
     config.mid_channels = 24
+    config.reset_branch = config.frame_itr_num
 
     ## Dataset
     if config.data == 'RealMCVSR':
@@ -54,8 +55,8 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
 
     ## Triaining
     config.total_itr = 50000
-    #IpE = math.floor((len(list(range(0, total_frame_num - (config.frame_itr_num-1), config.frame_itr_num)))) / actual_batch_size) * config.frame_itr_num
-    #max_epoch = math.floor(config.total_itr / IpE)
+    # IpE = math.floor((len(list(range(0, total_frame_num - (config.frame_itr_num-1), config.frame_itr_num)))) / actual_batch_size) * config.frame_itr_num
+    # max_epoch = math.floor(config.total_itr / IpE)
     if config.LRS == 'LD':
         # lr_decay
         config.decay_period = [400000]

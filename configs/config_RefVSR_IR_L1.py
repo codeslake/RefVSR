@@ -43,6 +43,8 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
     config.num_blocks = 30
     config.mid_channels = 36
     config.keyframe_stride = 5
+    config.reset_branch = None
+    # config.reset_branch = config.frame_itr_num # enable this if results contain holes
 
     ## Dataset
     if config.data == 'RealMCVSR':
@@ -50,9 +52,8 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
         video_num = 137
 
     config.total_itr = 300000
-    config.IpE = math.floor((len(list(range(0, total_frame_num - (config.frame_itr_num-1), config.frame_itr_num)))) / actual_batch_size) * config.frame_itr_num
-    #max_epoch = math.floor(config.total_itr / IpE)
-
+    # IpE = math.floor((len(list(range(0, total_frame_num - (config.frame_itr_num-1), config.frame_itr_num)))) / actual_batch_size) * config.frame_itr_num
+    # max_epoch = math.floor(config.total_itr / IpE)
     if config.LRS == 'LD':
         # lr_decay
         config.decay_period = [400000]

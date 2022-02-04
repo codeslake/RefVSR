@@ -21,12 +21,12 @@ def get_config(project = '', mode = '', config_ = '', data = '', LRS = '', batch
     config.manual_seed = 0
     config.is_verbose = False
     config.save_sample = False
+    config.note = None # note for log
+
     config.loss = None
     config.is_amp = False
-    config.note = None # note for log
     config.is_crop_valid = False
-    config.crop_valid_offset = 12 # if config.is_crop_valid==Ture, LR and Ref images whill be cropped e.g., LR[crop_offset:-crop_offset, :, :]
-
+    config.crop_valid_offset = 12 # if config.is_crop_valid==Ture, LR and Ref images whill be cropped e.g., LR[crop_offset:-crop_offset, :, :] --> Due to out of memory problem during validation.
 
     ##################################### TRAIN #####################################
     if config.cuda == True:
@@ -56,8 +56,8 @@ def get_config(project = '', mode = '', config_ = '', data = '', LRS = '', batch
     config.data_offset = '/data1/junyonglee'
     config.HR_data_path = None
     config.LR_data_path = None
-    config.is_use_T = False ## temporal
-    config.is_crop = False ## temporal
+    config.is_use_T = False
+    config.is_crop = False
 
     # logs
     config.max_ckpt_num = 100
@@ -90,8 +90,9 @@ def get_config(project = '', mode = '', config_ = '', data = '', LRS = '', batch
     config.EVAL = edict()
     config.EVAL.eval_mode = 'qual_quan' # qual
     config.EVAL.is_qual = False
+    config.EVAL.is_quan = True
     config.EVAL.is_debug = True
-    
+
     config.EVAL.data = 'RealMCVSR'
     config.EVAL.test_set = 'test'
 

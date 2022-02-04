@@ -46,7 +46,7 @@ class Runner():
 
         ## training vars
         self.states = ['train', 'valid']
-        #self.states = ['valid', 'train']
+        # self.states = ['valid', 'train']
         self.max_epoch = int(math.ceil(config.total_itr / self.trainer.get_itr_per_epoch('train')))
         self.config.max_epoch = self.max_epoch
 
@@ -357,6 +357,7 @@ if __name__ == '__main__':
         parser.add_argument('-eval_mode', '--eval_mode', type=str, default = 'qual_quan', help = 'evaluation mode. qual(qualitative)/quan(quantitative)')
         parser.add_argument('-test_set', '--test_set', type=str, default = 'test', help = 'test set to evaluate. test/valid')
         parser.add_argument('-is_qual', '--is_qual', action = 'store_true', default = False, help = 'whether to save image')
+        parser.add_argument('-is_quan', '--is_quan', action = 'store_true', default = False, help = 'whether to compute PSNR/SSIM')
         parser.add_argument('-is_debug', '--is_debug', action = 'store_true', default = False, help = 'whether to be in debug mode')
         parser.add_argument('-frame_num', '--frame_num', type=int, default = config.frame_num)
         parser.add_argument('-vid_name', '--vid_name', nargs='+', default = None, help = 'Name of video(s) to evaluate. e.g., --vid_name 0024 0074 ')
@@ -370,6 +371,7 @@ if __name__ == '__main__':
         config.EVAL.ckpt_abs_name = args.ckpt_abs_name
         config.EVAL.ckpt_epoch = args.ckpt_epoch
         config.EVAL.is_qual = args.is_qual
+        config.EVAL.is_quan = args.is_quan
         config.EVAL.is_debug = args.is_debug
         config.EVAL.load_ckpt_by_score = args.ckpt_score
         config.EVAL.vid_name = args.vid_name

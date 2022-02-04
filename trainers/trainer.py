@@ -126,7 +126,6 @@ class Trainer(baseTrainer):
         #         self.results['vis'][k] = torch.rot90(v, 3, [v.dim()-2, v.dim()-1])
         # print('\n\n', self.rank, inputs['is_portrait'], inputs['LR_UW'].size(), inputs['LR_UW'].is_contiguous(), self.results['vis']['SR_UW'].size(), '\n\n')
 
-
         ## Essentials ##
         # save scalars
         self.results['errs'] = errs
@@ -215,8 +214,6 @@ class Trainer(baseTrainer):
             if 'vis' not in outs.keys():
                 outs['vis'] = collections.OrderedDict()
             else:
-                # outs['vis']['LR_UW_prev_warp_forward'] = warp(LR_UW_frames[:, self.config.frame_num//2-1], forward_flows[:, self.config.frame_num//2-1])
-                # outs['vis']['LR_UW_next_warp_backward'] = warp(LR_UW_frames[:, self.config.frame_num//2+1], backward_flows[:, self.config.frame_num//2])
                 pass
 
             self._set_results(inputs, clone_detach_dict(outs), errs_total, log, norm_, is_train)
@@ -229,25 +226,10 @@ class Trainer(baseTrainer):
         b, total_frame_num, c, h, w = LR_UW_total_frames.size()
         errs_total = collections.OrderedDict()
 
-        ## Computing forward & backward flows
-        # forward_flows_total = []
-        # backward_flows_total = []
-        # with torch.no_grad():
-        #     for j in range(LR_UW_total_frames.size(1)-1):
-        #         forward_flows_total.append(F.interpolate(self.FlowNet(LR_UW_total_frames[:, j+1], LR_UW_total_frames[:, j]), size=(h, w), mode='bilinear', align_corners=False)[:, None])
-        #     for j in range(LR_UW_total_frames.size(1)-1, 0, -1):
-        #         backward_flows_total.insert(0, F.interpolate(self.FlowNet(LR_UW_total_frames[:, j-1], LR_UW_total_frames[:, j]), size=(h, w), mode='bilinear', align_corners=False)[:, None])
-
-        # forward_flows_total = torch.cat(forward_flows_total, dim=1)
-        # backward_flows_total = torch.cat(backward_flows_total, dim=1)
-
         is_first_frame = inputs['is_first'][0].item()
 
         LR_UW_frames = LR_UW_total_frames[:, :self.config.frame_num]
         LR_REF_W_frames = LR_REF_W_total_frames[:, :self.config.frame_num]
-
-        # forward_flows = forward_flows_total[:, :self.config.frame_num-1]
-        # backward_flows = backward_flows_total[:, :self.config.frame_num-1]
 
         #################################################################################################
 

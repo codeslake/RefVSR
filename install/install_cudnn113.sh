@@ -1,5 +1,5 @@
 #!/bin/bash
-pip install --no-cache -r requirements.txt
+pip install --no-cache -r install/requirements.txt
 pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html
 
 #apt install -y gnupg
