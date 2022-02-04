@@ -81,7 +81,10 @@ This repository contains the official PyTorch implementation of the following pa
 
 3. **Pre-trained models**
 
+***For the testing and training of the model, recommended to go through wiki pages for<br>
+[Logging](https://github.com/codeslake/RefVSR/wiki/Log-Details) and [Details of training and testing scripts](https://github.com/codeslake/RefVSR/wiki/Training-&-Testing-Details) before running the scripts.***
 ## Testing models of ArXiv2022
+
 ```bash
 ## Real-world 4x super-resolution (HD to 8K resolution)
 # Ours in Fig. 8 of the main paper (the model trained with pre-training and adaptaion stages)
@@ -116,10 +119,11 @@ $ sh ./scripts_eval/eval_RefVSR_IR_L1.sh
 >
 > * For all models, GPU with 24GB memory is required. We use Nvidia GeForce RTX 3090 in practice.
 > * Make sure to open the script file to set proper GPU device by modifying `CUDA_VISIBLE_DEVICES=...`.
+> * Testing results will be saved in `[LOG_ROOT]/RefVSR_CVPR2022/[mode]/result/quan_qual/[mode]_[epoch]/[data]`
+>   * `[mode]` is the name of model defined in the option `--mode` in an evalution script.
+>   * `[LOG_ROOT]` is set to `/Jarvis/logs/junyonglee` by default. Refer [here](https://github.com/codeslake/RefVSR/wiki/Log-Details).
 
 ## Training with the proposed two-stage training strategy
-*Recommended to go through wiki pages for<br>
-[Logging](https://github.com/codeslake/RefVSR/wiki/Log-Details) and [Details of training and testing scripts](https://github.com/codeslake/RefVSR/wiki/Training-&-Testing-Details) before running the scripts.*
 
 1. The pre-training stage (Sec. 4.1. in the main paper)
 
