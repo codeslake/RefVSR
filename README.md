@@ -60,28 +60,25 @@ This repository contains the official PyTorch implementation of the following pa
         ```
         ├── [DATASET_ROOT]
         │   ├── RealMCVSR
-        │   │   ├── train                       # training set
+        │   │   ├── train                       # a training set
         │   │   │   ├── HR                      # videos in original resolution 
         │   │   │   │   ├── T                   # telephoto videos
-        │   │   │   │   │   ├── 0002            # video clip
-        │   │   │   │   │   │   ├── 0000.png    # frames
+        │   │   │   │   │   ├── 0002            # a video clip 
+        │   │   │   │   │   │   ├── 0000.png    # a video frame
         │   │   │   │   │   │   ├── ...         
         │   │   │   │   │   ├── ....            
         │   │   │   │   ├── UW                  # ultra-wide-angle videos
         │   │   │   │   ├── W                   # wide-angle videos
         │   │   │   ├── LRx2                    # 2x downsampled videos
-        │   │   │   │   ├── ...                  
         │   │   │   ├── LRx4                    # 4x downsampled videos
-        │   │   │   │   ├── ...                  
-        │   │   ├── test                        # testing set
-        │   │   │   ├── ...
-        │   │   ├── valid                       # validation set
-        │   │   │   ├── ...
+        │   │   ├── test                        # a testing set
+        │   │   ├── valid                       # a validation set
         ```
 
         > **Note:**
         >
         > * `[DATASET_ROOT]` is currently set to `/data1/junyonglee`, which can be modified by [`config.data_offset`](https://github.com/codeslake/RefVSR/blob/main/configs/config.py#L56) in `./configs/config.py`.
+
 3. **Pre-trained models**
 
 ## Testing models of ArXiv2022
@@ -120,9 +117,45 @@ sh ./scripts_eval/eval_RefVSR_IR_L1.sh
 >
 > * For all models, GPU with 24GB memory is required. We use Nvidia GeForce RTX 3090 in practice.
 
+## Training with the proposed two-stage training stretagy (Sec. 4 in the main paper)
+1. The pre-training stage (Sec. 4.1. in the main paper)
+
+    ```shell
+    sh ./scripts_train/train_RefVSR_MFID.sh
+    ```
+
+    > **Note:**
+    >
+    > * for the smaller model, type `sh ./scripts_train/train-amp_RefVSR_small_MFID.sh`
+
+2. The adaaptation stage (Sec. 4.2. in the main paper)
+    * Set the path of the checkpoint saved from the pre-training stage with `-ra` option:
+
+        ```shell
+        $ vim ./scripts_train/train_RefVSR_MFID_8K.sh
+        ```
+        ```shell
+            ...
+            CUDA_VISIBLE_DEVICES=0,1 ...
+                ...
+                -ra ckpt/RefVSR_MFID.pytorch
+                ...
+        ```
+
+    * Start the adaptation stage
+
+        ```shell
+        sh ./scripts_train/train_RefVSR_MFID_8K.sh
+        ```
+
+        > **Note:**
+        >
+        > * for the smaller model, type `sh ./scripts_train/train-amp_RefVSR_small_MFID_8K.sh`
+
+
 ## Wiki
 * [Logging](https://github.com/codeslake/RefVSR/wiki/Log-Details)
-* [Training and testing details](https://github.com/codeslake/RefVSR/wiki/Training-&-Testing-Details)
+* [Details of training and testing scripts](https://github.com/codeslake/RefVSR/wiki/Training-&-Testing-Details)
 
 ## Citation
 If you find this code useful, please consider citing:
