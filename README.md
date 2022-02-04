@@ -118,7 +118,8 @@ $ sh ./scripts_eval/eval_RefVSR_IR_L1.sh
 > * Make sure to open the script file to set proper GPU device by modifying `CUDA_VISIBLE_DEVICES=...`.
 
 ## Training with the proposed two-stage training strategy
-**Recommended to go through wiki pages for [Logging](https://github.com/codeslake/RefVSR/wiki/Log-Details) and [Details of training and testing scripts](https://github.com/codeslake/RefVSR/wiki/Training-&-Testing-Details) before running the scripts.**
+*Recommended to go through wiki pages for<br>
+[Logging](https://github.com/codeslake/RefVSR/wiki/Log-Details) and [Details of training and testing scripts](https://github.com/codeslake/RefVSR/wiki/Training-&-Testing-Details) before running the scripts.*
 
 1. The pre-training stage (Sec. 4.1. in the main paper)
 
