@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import collections
 import numpy as np
+import gc
 
 from mmcv.cnn import ConvModule
 from mmcv.runner import load_checkpoint
@@ -37,8 +38,8 @@ class Network(nn.Module):
             pretrained='https://download.openmmlab.com/mmediting/restorers/iconvsr/edvrm_reds_20210413-3867262f.pth')
 
         ## optical flow network
-        # self.FlowNet = SPyNet(pretrained='https://download.openmmlab.com/mmediting/restorers/basicvsr/spynet_20210409-c6c1bd09.pth').to(torch.device('cuda'))
-        self.FlowNet = SPyNet(pretrained='./ckpt/SPyNet.pytorch').to(torch.device('cuda'))
+        # self.FlowNet = SPyNet(pretrained='https://download.openmmlab.com/mmediting/restorers/basicvsr/spynet_20210409-c6c1bd09.pth').to(torch.device(self.config.device))
+        self.FlowNet = SPyNet(pretrained='./ckpt/SPyNet.pytorch').to(torch.device(self.config.device))
         for name, param in self.FlowNet.named_parameters():
             param.requires_grad = False
 
@@ -273,6 +274,10 @@ class Network(nn.Module):
             conf_map, index_map = self.feature_match(lrs[:, i], refs[:, i])
             conf_maps.append(conf_map)
             index_maps.append(index_map)
+
+        if is_train is False:
+            gc.collect()
+            torch.cuda.empty_cache()
 
         ## BACKWARD BRANCH ##
         outputs = []

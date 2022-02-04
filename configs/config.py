@@ -63,7 +63,8 @@ def get_config(project = '', mode = '', config_ = '', data = '', LRS = '', batch
     config.max_ckpt_num = 100
     config.write_ckpt_every_epoch = 4
     config.refresh_image_log_every_epoch = {'train':config.write_ckpt_every_epoch*4, 'valid':config.write_ckpt_every_epoch*4}
-    config.write_log_every_itr = {'train':26, 'valid': 10}
+    #config.write_log_every_itr = {'train':26, 'valid': 10}
+    config.write_log_every_itr = {'train':20, 'valid': 20}
 
     # log dirs
     config.LOG_DIR = edict()
@@ -88,7 +89,7 @@ def get_config(project = '', mode = '', config_ = '', data = '', LRS = '', batch
 
     ##################################### EVAL ######################################
     config.EVAL = edict()
-    config.EVAL.eval_mode = 'qual_quan' # qual
+    config.EVAL.eval_mode = 'quan_qual' # qual
     config.EVAL.is_qual = False
     config.EVAL.is_quan = True
     config.EVAL.is_debug = True

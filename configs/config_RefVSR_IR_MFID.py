@@ -17,16 +17,16 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
     config.lr_min = 1e-6
     config.wi = None # weight init (xavier)
     config.win = None # weight init (normal)
-    config.is_amp = True
 
     config.patch_size = 64
-    config.frame_itr_num = 26
-    config.frame_num = 13
+    config.frame_itr_num = 5
+    config.frame_num = 9
 
-    config.loss = '1*L1+'
+    config.loss = '1*L1_lf+0.05*TFID_ref_X_mu+0.01*FID_hr'
+    config.CX_vgg_layer = 'relu3_4'
 
     ## SR
-    config.flag_HD_in = False # whether to SR above original input resolution
+    config.flag_HD_in  = False # whether to SR above original input resolution
     config.scale = 4 # SR scale (2 | 4)
     if config.scale == 2:
         config.matching_ksize = 4 # must be even
@@ -40,10 +40,12 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
 
     ## Model specifications
     config.trainer = 'trainer'
-    config.network = 'RefVSR'
-    config.num_blocks = 24
-    config.mid_channels = 24
-    config.reset_branch = config.frame_itr_num
+    config.network = 'RefVSR_IR'
+    config.num_blocks = 30
+    config.mid_channels = 36
+    config.keyframe_stride = 5
+    #config.reset_branch = None
+    config.reset_branch = config.frame_itr_num # enable this if results contain holes
 
     ## Dataset
     if config.data == 'RealMCVSR':
@@ -51,7 +53,7 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
         video_num = 137
 
     config.total_itr = 300000
-    # config.IpE = math.floor((len(list(range(0, total_frame_num - (config.frame_itr_num-1), config.frame_itr_num)))) / actual_batch_size) * config.frame_itr_num
+    # IpE = math.floor((len(list(range(0, total_frame_num - (config.frame_itr_num-1), config.frame_itr_num)))) / actual_batch_size) * config.frame_itr_num
     # max_epoch = math.floor(config.total_itr / IpE)
     if config.LRS == 'LD':
         # lr_decay

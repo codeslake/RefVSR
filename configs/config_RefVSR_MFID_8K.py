@@ -70,5 +70,5 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
         config.eta_min = config.lr_min
 
     config.write_ckpt_every_epoch = 1
-    config.write_log_every_itr = {'train':config.frame_itr_num, 'valid': 10}
+    config.write_log_every_itr = {'train':20*config.frame_itr_num, 'valid': 20}
     return config

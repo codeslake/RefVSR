@@ -80,9 +80,11 @@ def eval_quan_FOV(config):
     total_itr_time = 0
     total_itr_time_video = 0
 
-    # keys = [1, 0.9, 0.8, 0.7, 0.6, 0.5]
-    keys = [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.25]
+    keys = [1, 0.9, 0.8, 0.7, 0.6, 0.5]
 
+    # fi: inside the overlapped fov
+    # fo: outside the overlapped fov
+    # fr: FOV ring
     PSNR_mean_fi_total = {}
     PSNR_mean_fo_total = {}
     PSNR_mean_fr_total = {}
@@ -147,22 +149,22 @@ def eval_quan_FOV(config):
 
                 out_str = '[MEAN EVAL {}|{}|{}][{}/{}] ({:.5f}sec) \n[PSNR-FOV_in  ] ('.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0], inputs['video_len'][0], total_itr_time_video)
                 for k, v in PSNR_mean_fi.items():
-                    out_str += '{:3.1f}%: {:.5f}, '.format(k*100, v)
+                    out_str += '0-{:3.1f}%: {:.5f}, '.format(k*100, v)
                 out_str += ')\n[PSNR-FOV_out ] ('
                 for k, v in PSNR_mean_fo.items():
-                    out_str += '{:3.1f}%: {:.5f}, '.format(k*100, v)
+                    out_str += '{:3.1f}-100%: {:.5f}, '.format(k*100, v)
                 out_str += ')\n[PSNR-FOV_ring] ('
                 for k, v in PSNR_mean_fr.items():
-                    out_str += '{:3.1f}%: {:.5f}, '.format(k*100, v)
+                    out_str += '{:3.1f}-{:3.1f}%: {:.5f}, '.format(keys[-1]*100, k*100, v)
                 out_str += ')\n[SSIM-FOV_in  ] ('
                 for k, v in SSIM_mean_fi.items():
-                    out_str += '{:3.1f}%: {:.5f}, '.format(k*100, v)
+                    out_str += '0-{:3.1f}%: {:.5f}, '.format(k*100, v)
                 out_str += ')\n[SSIM-FOV_out ] ('
                 for k, v in SSIM_mean_fo.items():
-                    out_str += '{:3.1f}%: {:.5f}, '.format(k*100, v)
+                    out_str += '{:3.1f}-100%: {:.5f}, '.format(k*100, v)
                 out_str += ')\n[SSIM-FOV_ring] ('
                 for k, v in SSIM_mean_fr.items():
-                    out_str += '{:3.1f}%: {:.5f}, '.format(k*100, v)
+                    out_str += '{:3.1f}-{:3.1f}%: {:.5f}, '.format(keys[-1]*100, k*100, v)
                 out_str += ') \n\n'
                 print(out_str)
                 if not config.EVAL.is_debug:
@@ -209,48 +211,35 @@ def eval_quan_FOV(config):
 
         h, w, c = output_cpu_.shape
         for key in keys:
+            #if key == 1.:
+
             if key == 1.:
+                mask_fi = np.ones_like(output_cpu_)
                 PSNR_fi = psnr(output_cpu_, gt_cpu)
                 SSIM_fi = ssim(output_cpu_, gt_cpu)
-                PSNR_fo = PSNR_fr = 0
-                SSIM_fo = SSIM_fr = 0
 
-                frame_name = inputs['frame_name'][0]
-                print('[EVAL {}|{}|{}][{}/{}][{}/{}] {} PSNR: {:.5f} SSIM: {:.5f} ({:.5f}sec)'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0]+1, inputs['video_len'][0], inputs['frame_idx'][0]+1, inputs['frame_len'][0], frame_name, PSNR_fi, SSIM_fi, itr_time))
-                if not config.EVAL.is_debug:
-                    with open(os.path.join(save_path_root_deblur_score, 'score_{}_{}.txt'.format(config.EVAL.data, config.EVAL.eval_mode)), 'w' if (i == 0) else 'a') as file:
-                        file.write('[EVAL {}|{}|{}][{}/{}][{}/{}] {} PSNR: {:.5f} SSIM: {:.5f} ({:.5f}sec)\n'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0]+1, inputs['video_len'][0], inputs['frame_idx'][0]+1, inputs['frame_len'][0], frame_name, PSNR_fi, SSIM_fi, itr_time))
-                        file.close()
+                PSNR_fo = 0
+                SSIM_fo = 0
             else:
-                # crop_ratio = int(1/((1-key)/2))
-                crop_ratio = 1/((1-key)/2)
+                crop_ratio = int(1/((1-key)/2))
                 mask_fi = np.zeros_like(output_cpu_)
-                # mask_fi[h//crop_ratio:h-h//crop_ratio, w//crop_ratio:w-w//crop_ratio] = 1.
-                mask_fi[int(h/crop_ratio):h-int(h/crop_ratio), int(w/crop_ratio):w-int(w/crop_ratio)] = 1.
-                mask_fo = np.ones_like(output_cpu_)
-                # mask_fo[h//crop_ratio:h-h//crop_ratio, w//crop_ratio:w-w//crop_ratio] = 0.
-                mask_fo[int(h/crop_ratio):h-int(h/crop_ratio), int(w/crop_ratio):w-int(w/crop_ratio)] = 0.
-
+                mask_fi[h//crop_ratio:h-h//crop_ratio, w//crop_ratio:w-w//crop_ratio] = 1.
                 PSNR_fi = psnr_masked(output_cpu_, gt_cpu, mask_fi)
-                PSNR_fo = psnr_masked(output_cpu_, gt_cpu, mask_fo)
-
                 SSIM_fi = ssim_masked(output_cpu_, gt_cpu, mask_fi)
+
+                mask_fo = np.ones_like(output_cpu_)
+                mask_fo[h//crop_ratio:h-h//crop_ratio, w//crop_ratio:w-w//crop_ratio] = 0.
+                PSNR_fo = psnr_masked(output_cpu_, gt_cpu, mask_fo)
                 SSIM_fo = ssim_masked(output_cpu_, gt_cpu, mask_fo)
 
-                # if key > 0.5:
-                #     mask_fr = mask_fi.copy()
-                #     mask_fr[h//4:h-h//4, w//4:w-w//4] = 0.
+            if key > 0.5:
+                mask_fr = mask_fi.copy()
+                mask_fr[h//4:h-h//4, w//4:w-w//4] = 0.
 
-                #     PSNR_fr = psnr_masked(output_cpu_, gt_cpu, mask_fr)
-                #     SSIM_fr = ssim_masked(output_cpu_, gt_cpu, mask_fr)
-                if key > 0.25:
-                    mask_fr = mask_fi.copy()
-                    mask_fr[3*h//8:h-3*h//8, 3*w//8:w-3*w//8] = 0.
-
-                    PSNR_fr = psnr_masked(output_cpu_, gt_cpu, mask_fr)
-                    SSIM_fr = ssim_masked(output_cpu_, gt_cpu, mask_fr)
-                else:
-                    PSNR_fr = SSIM_fr = 0
+                PSNR_fr = psnr_masked(output_cpu_, gt_cpu, mask_fr)
+                SSIM_fr = ssim_masked(output_cpu_, gt_cpu, mask_fr)
+            else:
+                PSNR_fr = SSIM_fr = 0
 
             PSNR_mean_fi[key] += PSNR_fi
             PSNR_mean_fo[key] += PSNR_fo
@@ -258,6 +247,15 @@ def eval_quan_FOV(config):
             SSIM_mean_fi[key] += SSIM_fi
             SSIM_mean_fo[key] += SSIM_fo
             SSIM_mean_fr[key] += SSIM_fr
+
+            if key == 1.:
+                frame_name = inputs['frame_name'][0]
+                print('[EVAL {}|{}|{}][{}/{}][{}/{}] {} PSNR: {:.5f} SSIM: {:.5f} ({:.5f}sec)'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0]+1, inputs['video_len'][0], inputs['frame_idx'][0]+1, inputs['frame_len'][0], frame_name, PSNR_fi, SSIM_fi, itr_time))
+                if config.EVAL.is_debug is False:
+                    with open(os.path.join(save_path_root_deblur_score, 'score_{}_{}.txt'.format(config.EVAL.data, config.EVAL.eval_mode)), 'w' if (i == 0) else 'a') as file:
+                        file.write('[EVAL {}|{}|{}][{}/{}][{}/{}] {} PSNR: {:.5f} SSIM: {:.5f} ({:.5f}sec)\n'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0]+1, inputs['video_len'][0], inputs['frame_idx'][0]+1, inputs['frame_len'][0], frame_name, PSNR_fi, SSIM_fi, itr_time))
+                        file.close()
+
 
             if config.EVAL.is_debug:
                 print(key, 'raw:', PSNR_fi, PSNR_fo, PSNR_fr, SSIM_fi, SSIM_fo, SSIM_fr)
@@ -301,23 +299,23 @@ def eval_quan_FOV(config):
 
     out_str = '\n[TOTAL {}|{}] \n[PSNR-FOV_in  ] ('.format(ckpt_name, config.EVAL.data)
     for k, v in PSNR_mean_fi_total.items():
-        out_str += '{:3.1f}%: {:.5f}, '.format(k*100, v)
+        out_str += '0-{:3.1f}%: {:.5f}, '.format(k*100, v)
     out_str += ')\n[PSNR-FOV_out ] ('
     for k, v in PSNR_mean_fo_total.items():
-        out_str += '{:3.1f}%: {:.5f}, '.format(k*100, v)
+        out_str += '{:3.1f}-100%: {:.5f}, '.format(k*100, v)
     out_str += ')\n[PSNR-FOV_ring] ('
     for k, v in PSNR_mean_fr_total.items():
-        out_str += '{:3.1f}%: {:.5f}, '.format(k*100, v)
+        out_str += '{:3.1f}-{:3.1f}%: {:.5f}, '.format(keys[-1]*100, k*100, v)
 
     out_str += ')\n[SSIM-FOV_in  ] ('
     for k, v in SSIM_mean_fi_total.items():
-        out_str += '{:3.1f}%: {:.5f}, '.format(k*100, v)
+        out_str += '0-{:3.1f}%: {:.5f}, '.format(k*100, v)
     out_str += ')\n[SSIM-FOV_out ] ('
     for k, v in SSIM_mean_fo_total.items():
-        out_str += '{:3.1f}%: {:.5f}, '.format(k*100, v)
+        out_str += '{:3.1f}-100%: {:.5f}, '.format(k*100, v)
     out_str += ')\n[SSIM-FOV_ring] ('
     for k, v in SSIM_mean_fr_total.items():
-        out_str += '{:3.1f}%: {:.5f}, '.format(k*100, v)
+        out_str += '{:3.1f}-{:3.1f}%: {:.5f}, '.format(keys[-1]*100, k*100, v)
     out_str += ') ({:.5f}sec)\n\n'.format(total_itr_time)
 
     sys.stdout.write(out_str)
@@ -366,9 +364,9 @@ def eval_quan_qual(config):
         #########################
         init_time = time.time()
         with torch.no_grad():
-            results = model.evaluation(inputs, is_PSNR=True)
-        # gc.collect()
-        # torch.cuda.empty_cache()
+            results = model.evaluation(inputs, is_PSNR=config.EVAL.is_quan)
+        gc.collect()
+        torch.cuda.empty_cache()
         itr_time = time.time() - init_time
         #########################
 
@@ -416,8 +414,8 @@ def eval_quan_qual(config):
         # qualitative
         ## create output dir for a video
         if config.EVAL.is_qual:
-            # for iformat in ['png', 'jpg']:
-            for iformat in ['jpg']:
+            for iformat in ['png', 'jpg']:
+            #for iformat in ['jpg']:
                 frame_name_no_ext = frame_name.split('.')[0]
                 save_path_deblur = os.path.join(save_path_root_deblur, iformat)
                 Path(save_path_deblur).mkdir(parents=True, exist_ok=True)
@@ -557,7 +555,8 @@ def eval_quan_conf(config):
 
         # qualitative
         ## create output dir for a video
-        for iformat in ['jpg']:
+        for iformat in ['png', 'jpg']:
+        # for iformat in ['jpg']:
             frame_name_no_ext = frame_name.split('.')[0]
             save_path_deblur = os.path.join(save_path_root_deblur, iformat)
             Path(save_path_deblur).mkdir(parents=True, exist_ok=True)

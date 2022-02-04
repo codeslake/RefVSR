@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import collections
+import gc
 
 from mmedit.models.common import PixelShufflePack, ResidualBlockNoBN, make_layer
 
@@ -22,8 +23,8 @@ class Network(nn.Module):
         mid_channels = config.mid_channels
         self.mid_channels = mid_channels
 
-        # self.FlowNet = SPyNet(pretrained='https://download.openmmlab.com/mmediting/restorers/basicvsr/spynet_20210409-c6c1bd09.pth').to(torch.device('cuda'))
-        self.FlowNet = SPyNet(pretrained='./ckpt/SPyNet.pytorch').to(torch.device('cuda'))
+        # self.FlowNet = SPyNet(pretrained='https://download.openmmlab.com/mmediting/restorers/basicvsr/spynet_20210409-c6c1bd09.pth').to(torch.device(self.config.device))
+        self.FlowNet = SPyNet(pretrained='./ckpt/SPyNet.pytorch').to(torch.device(self.config.device))
         for name, param in self.FlowNet.named_parameters():
             param.requires_grad = False
 
@@ -195,6 +196,10 @@ class Network(nn.Module):
                 conf_map, index_map = None, None
             conf_maps.append(conf_map)
             index_maps.append(index_map)
+
+        if is_train is False:
+            gc.collect()
+            torch.cuda.empty_cache()
 
         ## BACKWARD BRANCH ##
         feat_prop = lrs.new_zeros(n, self.mid_channels, h, w)

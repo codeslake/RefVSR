@@ -43,8 +43,8 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
     config.num_blocks = 30
     config.mid_channels = 36
     config.keyframe_stride = 5
-    config.reset_branch = None
-    # config.reset_branch = config.frame_itr_num # enable this if results contain holes
+    #config.reset_branch = None
+    config.reset_branch = config.frame_itr_num # enable this if results contain holes
 
     ## Dataset
     if config.data == 'RealMCVSR':
@@ -67,5 +67,5 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
         config.restart_weights = np.ones_like(config.restarts).tolist()
         config.eta_min = config.lr_min
 
-    config.write_log_every_itr = {'train':20*config.frame_itr_num, 'valid': 10}
+    config.write_log_every_itr = {'train':20*config.frame_itr_num, 'valid': 20}
     return config

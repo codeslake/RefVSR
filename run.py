@@ -203,6 +203,7 @@ class Runner():
                         print_logs(state.upper(), self.config.mode, epoch, self.max_epoch, itr_time, itr * self.trainer.itr_inc[state], self.trainer.get_itr_per_epoch(state), errs = errs_itr, log_etc = self.lr, is_overwrite = itr > 1)
                         # print('\n')
                         itr_time = time.time()
+            # break # for debugging
 
 ##########################################################
 def init_dist(backend='nccl', **kwargs):
@@ -227,8 +228,8 @@ if __name__ == '__main__':
     parser.add_argument('--config', type = str, default = None, help = 'config name') # do not change the default value
     parser.add_argument('--mode', type = str, default = mode, help = 'mode name')
     parser.add_argument('--project', type = str, default = project, help = 'project name')
-    parser.add_argument('-data', '--data', type=str, default = 'VRefSR', help = 'dataset to train or test (VRefSR|CUFED5)')
-    parser.add_argument('-LRS', '--LRS', type=str, default = 'CA', help = 'learning rate scheduler to use [LD or CA]')
+    parser.add_argument('-data', '--data', type=str, default = 'RealMCVSR', help = 'dataset to train or test)')
+    parser.add_argument('-LRS', '--LRS', type=str, default = 'CA', help = 'learning rate scheduler to use [LD (learning rate decay) or CA (cosine annealing)]')
     parser.add_argument('-b', '--batch_size', type = int, default = 8, help = 'number of batch')
     args, _ = parser.parse_known_args()
 
@@ -238,8 +239,8 @@ if __name__ == '__main__':
         config.is_train = True
 
         ## DEFAULT
-        parser.add_argument('-trainer', '--trainer', type = str, default = 'trainer', help = 'model name')
-        parser.add_argument('-net', '--network', type = str, default = 'MCSR', help = 'network name')
+        parser.add_argument('-trainer', '--trainer', type = str, default = config.trainer, help = 'trainer kname')
+        parser.add_argument('-net', '--network', type = str, default = config.network, help = 'network name')
         parser.add_argument('-loss', '--loss', type = str, default = config.loss, help = 'loss')
         parser.add_argument('-r', '--resume', type = str, default = config.resume, help = 'name of state or ckpt (names are the same)')
         parser.add_argument('-ra', '--resume_abs', type = str, default = config.resume_abs, help = 'absolute path of state or ckpt')
@@ -308,6 +309,7 @@ if __name__ == '__main__':
             print(toRed('\tConfig: {}'.format(config.config)))
             print(toRed('\tNetwork: {}'.format(config.network)))
             print(toRed('\tTrainer: {}'.format(config.trainer)))
+            print(toRed('\tDataset : {}'.format(config.data)))
             print(toRed('\tLR scheduler: {}'.format(config.LRS)))
 
         if config.dist:
@@ -388,5 +390,6 @@ if __name__ == '__main__':
         print(toRed('\tConfig: {}'.format(config.config)))
         print(toRed('\tNetwork: {}'.format(config.network)))
         print(toRed('\tTrainer: {}'.format(config.trainer)))
+        print(toRed('\tDataset : {}'.format(config.data)))
 
         eval(config)

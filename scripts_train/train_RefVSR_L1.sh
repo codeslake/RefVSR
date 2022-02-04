@@ -5,13 +5,9 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python -B -m torch.distributed.launch --nproc_per_n
                         --is_train \
                         --mode RefVSR_L1 \
                         --config config_RefVSR_L1 \
-                        --network RefVSR \
-                        --trainer trainer \
-                        --data RealMCVSR \
-                        --is_crop_valid \
                         -b 2 \
                         -th 4 \
                         -dl \
-                        -ss \
                         -dist \
-                        -proc 4
+                        -ss \
+                        --is_crop_valid \

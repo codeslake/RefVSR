@@ -8,4 +8,5 @@ CUDA_VISIBLE_DEVICES=0 python -B run.py \
     --eval_mode quan_qual \
     --ckpt_abs_name ckpt/RefVSR_L1.pytorch \
     --is_quan \
-    #--ckpt_sc
+    #--is_qual \
+    #--eval_mode FOV \
