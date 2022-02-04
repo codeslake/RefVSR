@@ -83,7 +83,7 @@ This repository contains the official PyTorch implementation of the following pa
 
 ## Testing models of ArXiv2022
 ```bash
-## Real-world 4x super-resolution (HD to 8K)
+## Real-world 4x super-resolution (HD to 8K resolution)
 # Ours in Fig. 8 of the main paper (the model trained with pre-training and adaptaion stages)
 $ sh ./scripts_eval/eval_RefVSR_MFID_8K.sh
 
@@ -117,7 +117,9 @@ $ sh ./scripts_eval/eval_RefVSR_IR_L1.sh
 > * For all models, GPU with 24GB memory is required. We use Nvidia GeForce RTX 3090 in practice.
 > * Make sure to open the script file to set proper GPU device by modifying `CUDA_VISIBLE_DEVICES=...`.
 
-## Training with the proposed two-stage training stretagy (Sec. 4 in the main paper)
+## Training with the proposed two-stage training strategy
+**Recommended to go through wiki pages for [Logging](https://github.com/codeslake/RefVSR/wiki/Log-Details) and [Details of training and testing scripts](https://github.com/codeslake/RefVSR/wiki/Training-&-Testing-Details) before running the scripts.**
+
 1. The pre-training stage (Sec. 4.1. in the main paper)
 
     ```shell
@@ -126,11 +128,11 @@ $ sh ./scripts_eval/eval_RefVSR_IR_L1.sh
 
     > **Note:**
     >
-    > * for the smaller model, type `sh ./scripts_train/train-amp_RefVSR_small_MFID.sh`
-    > * Make sure to open the script file to set proper GPU devices, number of GPUs, and batch size by modifying `CUDA_VISIBLE_DEVICES=...`, `--npro_per_node` and `-b` option.
-    >   * We set total batch size 8, which is the mulpication of numbers set with options `--nproc_per_node` and `-b`.
+    > * For the smaller model, type `sh ./scripts_train/train-amp_RefVSR_small_MFID.sh`
+    > * Make sure to open the script file to set proper GPU devices, number of GPUs, and batch size by modifying `CUDA_VISIBLE_DEVICES=...`, `--npro_per_node` and `-b` options, respectively.
+    >   * The model reported in the main paper uses the total batch size of 8, the mulpication of numbers set with options `--nproc_per_node` and `-b`.
 
-2. The adaaptation stage (Sec. 4.2. in the main paper)
+2. The adaptation stage (Sec. 4.2. in the main paper)
     * Set the path of the checkpoint saved from the pre-training stage with `-ra` option:
 
         ```bash
@@ -154,9 +156,9 @@ $ sh ./scripts_eval/eval_RefVSR_IR_L1.sh
 
         > **Note:**
         >
-        > * for the smaller model, type `sh ./scripts_train/train-amp_RefVSR_small_MFID_8K.sh`
-        > * Make sure to open the script file to set proper GPU devices, number of GPUs, and batch size by modifying `CUDA_VISIBLE_DEVICES=...`, `--npro_per_node` and `-b` option.
-        >   * We set total batch size 2, which is the mulpication of numbers set with options `--nproc_per_node` and `-b`.
+        > * For the smaller model, type `sh ./scripts_train/train-amp_RefVSR_small_MFID_8K.sh`
+        > * Make sure to open the script file to set proper GPU devices, number of GPUs, and batch size by modifying `CUDA_VISIBLE_DEVICES=...`, `--npro_per_node` and `-b` options, respectively.
+        >   * The model reported in the main paper uses the total batch size of 2, the mulpication of numbers set with options `--nproc_per_node` and `-b`.
 
 
 ## Wiki
