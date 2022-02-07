@@ -6,16 +6,22 @@ This repository contains the official PyTorch implementation of the following pa
 > **[Reference-based Video Super-Resolution Using Multi-Camera Video Triplets (TODO)]()**<br>
 > Junyong Lee, Myeonghee Lee, Sunghyun Cho, Seungyong Lee, ArXiv 2022
 
+<p align="left">
+<a href="https://codeslake.github.io/publications/#RefVSR">
+    <!--<img width=100% src="https://i.imgur.com/DryOd2I.gif"/>-->
+    <img width=100% src="https://i.imgur.com/eMz1ZCg.gif"/>
+</a><br>
+</p>
+
 ## About the Research
 <details>
     <summary><i>Click here</i></summary>
-
+    <br>
     <p align="left">
-    <a href="https://codeslake.github.io/publications/#IFAN">
-        <img width=100% src="./assets/teaser.jpg"/>
+    <a href="https://codeslake.github.io/publications/#RefVSR">
+        <img width=100% src="https://i.imgur.com/KHwjpaB.png"/>
     </a><br>
     </p>
-
     <h3> Abstract </h3>
     <p>
        We propose the first reference-based video super-resolution (RefVSR) approach that utilizes reference videos for high-fidelity results. We focus on RefVSR in a triple-camera setting, where we aim at super-resolving a low-resolution ultra-wide video utilizing wide-angle and telephoto videos. We introduce the first RefVSR network that recurrently aligns and propagates temporal reference features fused with features extracted from low-resolution frames. To facilitate the fusion and propagation of temporal reference features, we propose a propagative temporal fusion module. For learning and evaluation of our network, we present the first RefVSR dataset consisting of triplets of ultra-wide, wide-angle, and telephoto videos concurrently taken from triple cameras of a smartphone. We also propose a two-stage training strategy fully utilizing video triplets in the proposed dataset for real-world 4x video super-resolution. We extensively evaluate our method, and the result shows the state-of-the-art performance in 4x super-resolution. 
