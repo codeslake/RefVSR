@@ -9,7 +9,7 @@ This repository contains the official PyTorch implementation of the following pa
 <p align="left">
 <a href="https://codeslake.github.io/publications/#RefVSR">
     <!--<img width=100% src="https://i.imgur.com/DryOd2I.gif"/>-->
-    <img width=100% src="https://i.imgur.com/eMz1ZCg.gif"/>
+    <img width=100% src="https://i.imgur.com/H2ioB72.gif"/>
 </a><br>
 </p>
 
@@ -56,7 +56,7 @@ $ ./install/install_cudnn113.sh
 
 > For the other models, PyTorch 1.8.0 is verified. To install requirements with PyTorch 1.8.0, run `./install/install_cudnn102.sh` for CUDA10.2 or `./install/install_cudnn111.sh` for CUDA11.1.
 
-#### 2. Datasets
+#### 2. Dataset
 Download and unzip the RealMCVSR dataset from [here](https://www.dropbox.com/sh/jyb5tpvctt97s5j/AABUGdkCPPaFU7k5Weo3ivOVa?dl=0) or [here](https://postechackr-my.sharepoint.com/:f:/g/personal/junyonglee_postech_ac_kr/EuWIvNQZWfZMqsE9b375mJQB9jaKrCP4KvgR3uMvCQIdGw?e=5jFIhs) under `[DATASET_ROOT]`:
 
 ```
@@ -83,7 +83,7 @@ Download and unzip the RealMCVSR dataset from [here](https://www.dropbox.com/sh/
 Download [pretrained weights](https://www.dropbox.com/sh/pyirbf2jp0uxoq8/AAA6MEuSJYLcwQLVdx3s12Lea?dl=0) under `./ckpt/`:
 
 ```
-.
+RefVSR
 ├── ...
 ├── ./ckpt
 │   ├── edvr.pytorch                    # weights of EDVR modules used for training Ours-IR
