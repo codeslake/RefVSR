@@ -5,6 +5,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python -B -m torch.distributed.launch --nproc_per_n
                         --is_train \
                         --mode RefVSR_MFID \
                         --config config_RefVSR_MFID \
+                        --data RealMCVSR \
                         -b 1 \
                         -th 4 \
                         -dl \

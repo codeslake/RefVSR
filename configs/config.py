@@ -110,7 +110,8 @@ def get_config(project = '', mode = '', config_ = '', data = '', LRS = '', batch
 
     # log dir
     config.EVAL.LOG_DIR = edict()
-    config.EVAL.LOG_DIR.save = os.path.join(config.LOG_DIR.offset, 'result')
+    config.output_offset = os.path.join(config.LOG_DIR.offset, 'result')
+    config.EVAL.LOG_DIR.save = config.output_offset
 
     return config
 

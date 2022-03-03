@@ -216,7 +216,7 @@ def init_dist(backend='nccl', **kwargs):
     dist.init_process_group(backend=backend, **kwargs)
 
 if __name__ == '__main__':
-    project = 'RefVSR_CVPR2022'
+    project = 'RefVSR_CVPR2022_test'
     mode = 'RefVSR'
 
     from configs.config import set_data_path
@@ -228,8 +228,8 @@ if __name__ == '__main__':
     parser.add_argument('--config', type = str, default = None, help = 'config name') # do not change the default value
     parser.add_argument('--mode', type = str, default = mode, help = 'mode name')
     parser.add_argument('--project', type = str, default = project, help = 'project name')
-    parser.add_argument('-data', '--data', type=str, default = 'RealMCVSR', help = 'dataset to train or test)')
-    parser.add_argument('-LRS', '--LRS', type=str, default = 'CA', help = 'learning rate scheduler to use [LD (learning rate decay) or CA (cosine annealing)]')
+    parser.add_argument('-data', '--data', type=str, default = 'RealMCVSR', help = 'dataset to train or test (VRefSR)')
+    parser.add_argument('-LRS', '--LRS', type=str, default = 'CA', help = 'learning rate scheduler to use [LD or CA]')
     parser.add_argument('-b', '--batch_size', type = int, default = 8, help = 'number of batch')
     args, _ = parser.parse_known_args()
 
@@ -242,6 +242,7 @@ if __name__ == '__main__':
         parser.add_argument('-trainer', '--trainer', type = str, default = config.trainer, help = 'trainer kname')
         parser.add_argument('-net', '--network', type = str, default = config.network, help = 'network name')
         parser.add_argument('-loss', '--loss', type = str, default = config.loss, help = 'loss')
+        parser.add_argument('-data_offset', '--data_offset', type = str, default = config.data_offset, help = 'root path of the dataset')
         parser.add_argument('-r', '--resume', type = str, default = config.resume, help = 'name of state or ckpt (names are the same)')
         parser.add_argument('-ra', '--resume_abs', type = str, default = config.resume_abs, help = 'absolute path of state or ckpt')
         parser.add_argument('-dl', '--delete_log', action = 'store_true', default = False, help = 'whether to delete log')
@@ -268,6 +269,7 @@ if __name__ == '__main__':
         config.trainer = args.trainer
         config.network = args.network
         config.loss = args.loss
+        config.data_offset = args.data_offset
 
         config.resume = args.resume
         config.resume_abs = args.resume_abs
@@ -351,6 +353,8 @@ if __name__ == '__main__':
         config.is_train = False
         ## EVAL
         parser.add_argument('-net', '--network', type = str, default = config.network, help = 'network name')
+        parser.add_argument('-data_offset', '--data_offset', type = str, default = config.data_offset, help = 'root path of the dataset')
+        parser.add_argument('-output_offset', '--output_offset', type = str, default = config.output_offset, help = 'root path of the outputs')
         parser.add_argument('-ckpt_name', '--ckpt_name', type=str, default = None, help='ckpt name')
         parser.add_argument('-ckpt_abs_name', '--ckpt_abs_name', type=str, default = None, help='ckpt abs name')
         parser.add_argument('-ckpt_epoch', '--ckpt_epoch', type=int, default = None, help='ckpt epoch')
@@ -358,8 +362,8 @@ if __name__ == '__main__':
         parser.add_argument('-dist', '--dist', action = 'store_true', default = False, help = 'whether to distributed pytorch')
         parser.add_argument('-eval_mode', '--eval_mode', type=str, default = 'qual_quan', help = 'evaluation mode. qual(qualitative)/quan(quantitative)')
         parser.add_argument('-test_set', '--test_set', type=str, default = 'test', help = 'test set to evaluate. test/valid')
-        parser.add_argument('-is_qual', '--is_qual', action = 'store_true', default = False, help = 'whether to save image')
-        parser.add_argument('-is_quan', '--is_quan', action = 'store_true', default = False, help = 'whether to compute PSNR/SSIM')
+        parser.add_argument('-qualitative_only', '--qualitative_only', action = 'store_true', default = False, help = 'whether to save image')
+        parser.add_argument('-quantitative_only', '--quantitative_only', action = 'store_true', default = False, help = 'whether to compute PSNR/SSIM')
         parser.add_argument('-is_debug', '--is_debug', action = 'store_true', default = False, help = 'whether to be in debug mode')
         parser.add_argument('-frame_num', '--frame_num', type=int, default = config.frame_num)
         parser.add_argument('-vid_name', '--vid_name', nargs='+', default = None, help = 'Name of video(s) to evaluate. e.g., --vid_name 0024 0074 ')
@@ -372,8 +376,8 @@ if __name__ == '__main__':
         config.EVAL.ckpt_name = args.ckpt_name
         config.EVAL.ckpt_abs_name = args.ckpt_abs_name
         config.EVAL.ckpt_epoch = args.ckpt_epoch
-        config.EVAL.is_qual = args.is_qual
-        config.EVAL.is_quan = args.is_quan
+        config.EVAL.qualitative_only = args.qualitative_only
+        config.EVAL.quantitative_only = args.quantitative_only
         config.EVAL.is_debug = args.is_debug
         config.EVAL.load_ckpt_by_score = args.ckpt_score
         config.EVAL.vid_name = args.vid_name
@@ -383,6 +387,10 @@ if __name__ == '__main__':
         config.EVAL.eval_mode = args.eval_mode
         config.EVAL.test_set = args.test_set
         config.EVAL.data = args.data
+
+        config.data_offset = args.data_offset
+        config.EVAL.LOG_DIR.save = os.path.join(args.output_offset)
+        handle_directory(config, False)
         config = set_data_path(config, config.EVAL.data, is_train=False)
 
         print(toRed('\tProject : {}'.format(config.project)))

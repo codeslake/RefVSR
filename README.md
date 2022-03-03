@@ -1,10 +1,11 @@
-# RefVSR: Reference-based Video Super-Resolution
+# Reference-based Video Super-Resolution (RefVSR)<br><sub>Official PyTorch Implementation of the CVPR 2022 Paper</sub>
 ![License CC BY-NC](https://img.shields.io/badge/license-GNU_AGPv3-blue.svg?style=plastic)
 
-This repository contains the official PyTorch implementation of the following paper:
+This repo contains training and evaluation code for the following paper:
 
-> **[Reference-based Video Super-Resolution with Propagative Temporal Fusion Using Multi-Camera Video Triplets]()**<br>
-> Junyong Lee, Myeonghee Lee, Sunghyun Cho, Seungyong Lee, CVPR 2022
+> **Reference-based Video Super-Resolution Using Multi-Camera Video Triplets**<br>
+> Junyong Lee, Myeonghee Lee, Sunghyun Cho, and Seungyong Lee<br>
+> *IEEE Computer Vision and Pattern Recognition (**CVPR**) 2022*
 
 <p align="left">
 <a href="https://codeslake.github.io/publications/#RefVSR">
@@ -35,7 +36,7 @@ This repository contains the official PyTorch implementation of the following pa
 
 ![Ubuntu](https://img.shields.io/badge/Ubuntu-18.0.4-blue.svg?style=plastic)
 ![Python](https://img.shields.io/badge/Python-3.8.8-green.svg?style=plastic)
-![PyTorch](https://img.shields.io/badge/PyTorch-1.8.0%20&%201.10.2-green.svg?style=plastic)
+![PyTorch](https://img.shields.io/badge/PyTorch-1.8.0%20&%201.10.2%20&%201.11.0-green.svg?style=plastic)
 ![CUDA](https://img.shields.io/badge/CUDA-10.2%20&%2011.1%20&%2011.3-green.svg?style=plastic)
 
 #### 1. Environment setup
@@ -46,7 +47,7 @@ $ cd RefVSR
 $ conda create -y name RefVSR python 3.8 && conda activate RefVSR
 
 # Install pytorch
-$ conda install pytorch==1.10.2 torchvision==0.11.3 torchaudio==0.10.2 cudatoolkit=11.3 -c pytorch
+$ conda install pytorch==1.11.0 torchvision==0.12.0 torchaudio==0.11.0 cudatoolkit=11.3.1 -c pytorch
 
 # Install requirements
 $ ./install/install_cudnn113.sh
@@ -54,13 +55,13 @@ $ ./install/install_cudnn113.sh
 
 > It is recommended to install PyTorch >= 1.10.0 with CUDA11.3 for running small models using Pytorch AMP, because PyTorch < 1.10.0 is known to have [a problem in running amp with `torch.nn.functional.grid_sample()`](https://github.com/pytorch/pytorch/issues/42218) needed for inter-frame alignment.
 
-> For the other models, PyTorch 1.8.0 is verified. To install requirements with PyTorch 1.8.0, run `./install/install_cudnn102.sh` for CUDA10.2 or `./install/install_cudnn111.sh` for CUDA11.1.
+> For the other models, PyTorch 1.8.0 is verified. To install requirements with PyTorch 1.8.0, run `./install/install_cudnn102.sh` for CUDA10.2 or `./install/install_cudnn111.sh` for CUDA11.1
 
 #### 2. Dataset
-Download and unzip the RealMCVSR dataset from [here](https://www.dropbox.com/sh/jyb5tpvctt97s5j/AABUGdkCPPaFU7k5Weo3ivOVa?dl=0) or [here](https://postechackr-my.sharepoint.com/:f:/g/personal/junyonglee_postech_ac_kr/EuWIvNQZWfZMqsE9b375mJQB9jaKrCP4KvgR3uMvCQIdGw?e=5jFIhs) under `[DATASET_ROOT]`:
+Download and unzip the RealMCVSR dataset ([option 1](https://www.dropbox.com/sh/jyb5tpvctt97s5j/AABUGdkCPPaFU7k5Weo3ivOVa?dl=0), [option 2](https://postechackr-my.sharepoint.com/:f:/g/personal/junyonglee_postech_ac_kr/EuWIvNQZWfZMqsE9b375mJQB9jaKrCP4KvgR3uMvCQIdGw?e=5jFIhs)) under `[DATA_OFFSET]`:
 
 ```
-[DATASET_ROOT]
+[DATA_OFFSET]
     └── RealMCVSR
         ├── train                       # a training set
         │   ├── HR                      # videos in original resolution 
@@ -77,7 +78,7 @@ Download and unzip the RealMCVSR dataset from [here](https://www.dropbox.com/sh/
         └── valid                       # a validation set
 ```
 
-> `[DATASET_ROOT]` can be modified with [`config.data_offset`](https://github.com/codeslake/RefVSR/blob/main/configs/config.py#L56) in `./configs/config.py`.
+> `[DATA_OFFSET]` can be modified with `--data_offset` option in the evaluation script.
 
 #### 3. Pre-trained models
 Download [pretrained weights](https://www.dropbox.com/sh/pyirbf2jp0uxoq8/AAA6MEuSJYLcwQLVdx3s12Lea?dl=0) under `./ckpt/`:
@@ -101,14 +102,19 @@ RefVSR
 
 ---
 ***For the testing and training of your own model, it is recommended to go through wiki pages for<br>
-[Logging](https://github.com/codeslake/RefVSR/wiki/Log-Details) and [Details of testing and training scripts](https://github.com/codeslake/RefVSR/wiki/Details-of-Testing-&-Training-scripts) before running the scripts.***
+[logging](https://github.com/codeslake/RefVSR/wiki/Log-Details) and [details of testing and training scripts](https://github.com/codeslake/RefVSR/wiki/Details-of-Testing-&-Training-scripts) before running the scripts.***
 
-## Testing models of CVPR2022
-⚠️ Be sure to modify the script file and indicate proper GPU device by modifying `CUDA_VISIBLE_DEVICES`.
-
-⚠️ Results will be saved in `[LOG_ROOT]/RefVSR_CVPR2022/[mode]/result/quan_qual/[mode]_[epoch]/[data]`.
-* `[LOG_ROOT]` can be modified with [`config.log_offset`](https://github.com/codeslake/RefVSR/blob/main/configs/config.py#L71) in `./configs/config.py`.
-* `[mode]` is the name of the model assigned with the option `--mode` in an evalution script.
+## Testing models of CVPR 2022
+#### Evaluation script
+```bash
+CUDA_VISIBLE_DEVICES=0 python -B run.py \
+    --mode _RefVSR_MFID_8K \                       # name of the model to evaluate
+    --config config_RefVSR_MFID_8K \               # name of the configuration file in ./configs
+    --data RealMCVSR \                             # name of the dataset
+    --ckpt_abs_name ckpt/RefVSR_MFID_8K.pytorch \  # absolute path for the checkpoint
+    --data_offset /data1/junyonglee \              # offset path for the dataset (e.g., [DATA_OFFSET]/RealMCVSR)
+    --output_offset ./result                       # offset path for the outputs
+```
 
 ### Real-world 4x video super-resolution (HD to 8K resolution)
 ```bash
@@ -149,7 +155,7 @@ $ ./scripts_eval/eval_RefVSR_IR_L1.sh
 ```
 > For all models, we use Nvidia GeForce RTX 3090 (24GB) in practice.
 
-> To obtain quantitative results measured with the varying FoV ranges as shown in Table 3 of the main paper, modify the script and change `--eval_mode quan_qual` to `--eval_mode FOV`.
+> To obtain quantitative results measured with the varying FoV ranges as shown in Table 3 of the main paper, modify the script and specify `--eval_mode FOV`.
 
 
 ## Training models with the proposed two-stage training strategy
@@ -180,13 +186,13 @@ $ ./scripts_train/train_amp_RefVSR_small_MFID.sh
     py3clean ./
     CUDA_VISIBLE_DEVICES=0,1 ...
         ...
-        -ra [LOG_ROOT]/RefVSR_CVPR2022/amp_RefVSR_small_MFID/checkpoint/train/epoch/ckpt/amp_RefVSR_small_MFID_00xxx.pytorch
+        -ra [LOG_OFFSET]/RefVSR_CVPR2022/amp_RefVSR_small_MFID/checkpoint/train/epoch/ckpt/amp_RefVSR_small_MFID_00xxx.pytorch
         ...
 
     ```
-    > Checkpoint path is `[LOG_ROOT]/RefVSR_CVPR2022/[mode]/checkpoint/train/epoch/[mode]_00xxx.pytorch`.
-    > * PSNR is recorded in `[LOG_ROOT]/RefVSR_CVPR2022/[mode]/checkpoint/train/epoch/checkpoint.txt`.
-    > * `[LOG_ROOT]` can be modified with [`config.log_offset`](https://github.com/codeslake/RefVSR/blob/main/configs/config.py#L71) in `./configs/config.py`.
+    > Checkpoint path is `[LOG_OFFSET]/RefVSR_CVPR2022/[mode]/checkpoint/train/epoch/[mode]_00xxx.pytorch`.
+    > * PSNR is recorded in `[LOG_OFFSET]/RefVSR_CVPR2022/[mode]/checkpoint/train/epoch/checkpoint.txt`.
+    > * `[LOG_OFFSET]` can be modified with [`config.log_offset`](https://github.com/codeslake/RefVSR/blob/main/configs/config.py#L71) in `./configs/config.py`.
     > * `[mode]` is the name of the model assigned with `--mode` in the script used for the pre-training stage.
 
 2. Start the adaptation stage.
@@ -227,36 +233,26 @@ $ ./scripts_train/train_amp_RefVSR_small_L1.sh
 * [Logging](https://github.com/codeslake/RefVSR/wiki/Log-Details)
 * [Details of testing and training scripts](https://github.com/codeslake/RefVSR/wiki/Details-of-Testing-&-Training-scripts)
 
-## Citation
-If you find this code useful, please consider citing:
-```
-@InProceedings{Lee_2022_RefVSR,
-    author = {Lee, Junyong and Lee, Myeonghee and Cho, Sunghyun and Lee, Seungyong},
-    title = {Reference-based Video Super-Resolution with Propagative Temporal Fusion Using Multi-Camera Video Triplets},
-    booktitle = {The IEEE Converence on Computer Vision and Pattern Recognition (CVPR)},
-    year = {2022}
-}
-```
-
 ## Contact
 Open an issue for any inquiries.
 You may also have contact with [junyonglee@postech.ac.kr](mailto:junyonglee@postech.ac.kr)
-
-## Resources
-All material related to our paper is available with the following links:
-
-| Link |
-| :-------------- |
-| [The main paper]() |
-| [Supplementary Files]() |
-| [Checkpoints](https://www.dropbox.com/sh/pyirbf2jp0uxoq8/AAA6MEuSJYLcwQLVdx3s12Lea?dl=0) |
-| The RealMCVSR dataset ([option 1](https://www.dropbox.com/sh/jyb5tpvctt97s5j/AABUGdkCPPaFU7k5Weo3ivOVa?dl=0), [option 2](https://postechackr-my.sharepoint.com/:f:/g/personal/junyonglee_postech_ac_kr/EuWIvNQZWfZMqsE9b375mJQB9jaKrCP4KvgR3uMvCQIdGw?e=5jFIhs)) |
 
 ## License
 This software is being made available under the terms in the [LICENSE](LICENSE) file.
 
 Any exemptions to these terms require a license from the Pohang University of Science and Technology.
 
-## Acknowledgement
+## Citation
+If you find this code useful, please consider citing:
+```
+@InProceedings{Lee_2022_RefVSR,
+    author = {Lee, Junyong and Lee, Myeonghee and Cho, Sunghyun and Lee, Seungyong},
+    title = {Reference-based Video Super-Resolution Using Multi-Camera Video Triplets},
+    booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+    year = {2022}
+}
+```
+
+## Acknowledgment
 We thank the authors of [BasicVSR](https://github.com/ckkelvinchan/BasicVSR-IconVSR) and [DCSR](https://github.com/Tengfei-Wang/DCSR) for sharing their code.
 

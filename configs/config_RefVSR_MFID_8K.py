@@ -49,13 +49,14 @@ def get_config(project = '', mode = '', config = '', data = '', LRS = '', batch_
     # config.reset_branch = config.frame_itr_num # enable this if results contain holes
 
     ## Dataset
-    if config.data == 'RealMCVSR':
-        total_frame_num = 4676
-        video_num = 32
-
-    config.total_itr = 50000
+    #if config.data == 'RealMCVSR':
+    #    total_frame_num = 4676
+    #    video_num = 32
     # IpE = math.floor((len(list(range(0, total_frame_num - (config.frame_itr_num-1), config.frame_itr_num)))) / actual_batch_size) * config.frame_itr_num
     # max_epoch = math.floor(config.total_itr / IpE)
+
+    ## Triaining
+    config.total_itr = 50000
     if config.LRS == 'LD':
         # lr_decay
         config.decay_period = [400000]
