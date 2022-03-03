@@ -3,8 +3,8 @@
 
 This repository contains the official PyTorch implementation of the following paper:
 
-> **[Reference-based Video Super-Resolution Using Multi-Camera Video Triplets (TODO)]()**<br>
-> Junyong Lee, Myeonghee Lee, Sunghyun Cho, Seungyong Lee, ArXiv 2022
+> **[Reference-based Video Super-Resolution with Propagative Temporal Fusion Using Multi-Camera Video Triplets]()**<br>
+> Junyong Lee, Myeonghee Lee, Sunghyun Cho, Seungyong Lee, CVPR 2022
 
 <p align="left">
 <a href="https://codeslake.github.io/publications/#RefVSR">
@@ -103,7 +103,7 @@ RefVSR
 ***For the testing and training of your own model, it is recommended to go through wiki pages for<br>
 [Logging](https://github.com/codeslake/RefVSR/wiki/Log-Details) and [Details of testing and training scripts](https://github.com/codeslake/RefVSR/wiki/Details-of-Testing-&-Training-scripts) before running the scripts.***
 
-## Testing models of ArXiv2022
+## Testing models of CVPR2022
 ⚠️ Be sure to modify the script file and indicate proper GPU device by modifying `CUDA_VISIBLE_DEVICES`.
 
 ⚠️ Results will be saved in `[LOG_ROOT]/RefVSR_CVPR2022/[mode]/result/quan_qual/[mode]_[epoch]/[data]`.
@@ -230,10 +230,10 @@ $ ./scripts_train/train_amp_RefVSR_small_L1.sh
 ## Citation
 If you find this code useful, please consider citing:
 ```
-@artical{Lee_2022_RefVSR,
+@InProceedings{Lee_2022_RefVSR,
     author = {Lee, Junyong and Lee, Myeonghee and Cho, Sunghyun and Lee, Seungyong},
     title = {Reference-based Video Super-Resolution with Propagative Temporal Fusion Using Multi-Camera Video Triplets},
-    journal = {ArXiv},
+    booktitle = {The IEEE Converence on Computer Vision and Pattern Recognition (CVPR)},
     year = {2022}
 }
 ```
@@ -247,8 +247,8 @@ All material related to our paper is available with the following links:
 
 | Link |
 | :-------------- |
-| [The main paper (todo)]() |
-| [Supplementary Files (todo)]() |
+| [The main paper]() |
+| [Supplementary Files]() |
 | [Checkpoints](https://www.dropbox.com/sh/pyirbf2jp0uxoq8/AAA6MEuSJYLcwQLVdx3s12Lea?dl=0) |
 | The RealMCVSR dataset ([option 1](https://www.dropbox.com/sh/jyb5tpvctt97s5j/AABUGdkCPPaFU7k5Weo3ivOVa?dl=0), [option 2](https://postechackr-my.sharepoint.com/:f:/g/personal/junyonglee_postech_ac_kr/EuWIvNQZWfZMqsE9b375mJQB9jaKrCP4KvgR3uMvCQIdGw?e=5jFIhs)) |
 
