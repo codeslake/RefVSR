@@ -7,4 +7,4 @@ CUDA_VISIBLE_DEVICES=4 python -B run.py \
     --data RealMCVSR \
     --ckpt_abs_name ckpt/RefVSR_small_L1.pytorch \
     --data_offset /data1/junyonglee \
-    --output_offset ./result
+    --output_offset ./result \

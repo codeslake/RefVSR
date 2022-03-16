@@ -258,7 +258,7 @@ def load_file_list(root_path, child_path = None, is_flatten=False):
                 del(dirnames[0])
 
         if len(dirnames) == 0:
-            if root[0] == '.':
+            if root == '.':
                 continue
             if child_path is not None and child_path != Path(root).name:
                 continue

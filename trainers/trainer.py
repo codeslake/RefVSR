@@ -65,41 +65,41 @@ class Trainer(baseTrainer):
             else:
                 self.network = DP(self.network).to(self.device, non_blocking=True)
 
-        # if self.config.is_train and self.rank <= 0:
-        ### PROFILE ###
-        if self.rank <= 0:
-            #with torch.no_grad():
-            #     # input_size = (1, self.config.frame_num, 3, 1080//4, 1920//4)
-            #     input_size = (1, self.config.frame_num, 3, 256, 256)
-            #     if config.dist:
-            #         inputs = self.network.module.input_constructor(input_size)
-            #     else:
-            #         try:
-            #             inputs = self.network.input_constructor(input_size)
-            #         except:
-            #             inputs = self.network.module.input_constructor(input_size)
-            #     inputs = tuple(inputs.values())
-            #     Macs = fvnn.FlopCountAnalysis(self.network, inputs=inputs).total()
-            #     params = fvnn.parameter_count(self.network)['']
-            with torch.no_grad():
-                if config.flag_HD_in is False:
-                    res = (1, config.frame_num, 3, 1080//config.scale, 1090//config.scale)
-                else:
-                    res = (1, config.frame_num, 3, 1080, 1920)
-                Macs,params = get_model_complexity_info(self.network, res, input_constructor = self.network.module.input_constructor, as_strings=False, print_per_layer_stat=config.is_verbose)
+            # if self.config.is_train and self.rank <= 0:
+            ### PROFILE ###
+            if self.rank <= 0:
+                #with torch.no_grad():
+                #     # input_size = (1, self.config.frame_num, 3, 1080//4, 1920//4)
+                #     input_size = (1, self.config.frame_num, 3, 256, 256)
+                #     if config.dist:
+                #         inputs = self.network.module.input_constructor(input_size)
+                #     else:
+                #         try:
+                #             inputs = self.network.input_constructor(input_size)
+                #         except:
+                #             inputs = self.network.module.input_constructor(input_size)
+                #     inputs = tuple(inputs.values())
+                #     Macs = fvnn.FlopCountAnalysis(self.network, inputs=inputs).total()
+                #     params = fvnn.parameter_count(self.network)['']
+                with torch.no_grad():
+                    if config.flag_HD_in is False:
+                        res = (1, config.frame_num, 3, 1080//config.scale, 1090//config.scale)
+                    else:
+                        res = (1, config.frame_num, 3, 1080, 1920)
+                    Macs,params = get_model_complexity_info(self.network, res, input_constructor = self.network.module.input_constructor, as_strings=False, print_per_layer_stat=config.is_verbose)
 
-        if self.rank <= 0:
-            print(toGreen('Computing model complexity...'))
-            print('{:<30}  {:<8} B'.format('Computational complexity (Macs): ', Macs / 1000 ** 3 ))
-            print('{:<30}  {:<8} M'.format('Number of parameters: ',params / 1000 ** 2))
-            if self.is_train:
-                with open(config.LOG_DIR.offset + '/cost.txt', 'w') as f:
-                    f.write('{:<30}  {:<8} B\n'.format('Computational complexity (Macs): ', Macs / 1000 ** 3 ))
-                    f.write('{:<30}  {:<8} M'.format('Number of parameters: ',params / 1000 ** 2))
-                    f.close()
+            if self.rank <= 0:
+                print(toGreen('Computing model complexity...'))
+                print('{:<30}  {:<8} B'.format('Computational complexity (Macs): ', Macs / 1000 ** 3 ))
+                print('{:<30}  {:<8} M'.format('Number of parameters: ',params / 1000 ** 2))
+                if self.is_train:
+                    with open(config.LOG_DIR.offset + '/cost.txt', 'w') as f:
+                        f.write('{:<30}  {:<8} B\n'.format('Computational complexity (Macs): ', Macs / 1000 ** 3 ))
+                        f.write('{:<30}  {:<8} M'.format('Number of parameters: ',params / 1000 ** 2))
+                        f.close()
 
-        # gc.collect()
-        # torch.cuda.empty_cache()
+            # gc.collect()
+            # torch.cuda.empty_cache()
 
     ######################################################################################################
     ########################### Edit from here for training/testing scheme ###############################

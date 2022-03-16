@@ -37,7 +37,7 @@ def warp(tensorInput, tensorFlow, mode='bilinear', padding_mode = 'zeros', align
         tensorHorizontal = torch.linspace(-1.0, 1.0, tensorFlow.size(3)).view(1, 1, 1, tensorFlow.size(3)).expand(-1, -1, tensorFlow.size(2), -1)
         tensorVertical = torch.linspace(-1.0, 1.0, tensorFlow.size(2)).view(1, 1, tensorFlow.size(2), 1).expand(-1, -1, -1, tensorFlow.size(3))
 
-        Backward_tensorGrid[str(tensorFlow.size()[2:])] = torch.cat([ tensorHorizontal, tensorVertical ], 1).to(torch.device('cuda'), non_blocking = True)
+        Backward_tensorGrid[str(tensorFlow.size()[2:])] = torch.cat([ tensorHorizontal, tensorVertical ], 1).to(tensorFlow.device, non_blocking = True)
 
     tensorFlow = torch.cat([ tensorFlow[:, 0:1, :, :] / ((tensorInput.size(3) - 1.0) / 2.0), tensorFlow[:, 1:2, :, :] / ((tensorInput.size(2) - 1.0) / 2.0) ], 1)
     return torch.nn.functional.grid_sample(input=tensorInput, grid=(Backward_tensorGrid[str(tensorFlow.size()[2:])] + tensorFlow).permute(0, 2, 3, 1), mode=mode, padding_mode=padding_mode, align_corners=align_corners)

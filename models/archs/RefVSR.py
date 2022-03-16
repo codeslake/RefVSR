@@ -24,7 +24,7 @@ class Network(nn.Module):
         self.mid_channels = mid_channels
 
         # self.FlowNet = SPyNet(pretrained='https://download.openmmlab.com/mmediting/restorers/basicvsr/spynet_20210409-c6c1bd09.pth').to(torch.device(self.config.device))
-        self.FlowNet = SPyNet(pretrained='./ckpt/SPyNet.pytorch').to(torch.device(self.config.device))
+        self.FlowNet = SPyNet(pretrained='./ckpt/SPyNet.pytorch', device=self.config.device)
         for name, param in self.FlowNet.named_parameters():
             param.requires_grad = False
 

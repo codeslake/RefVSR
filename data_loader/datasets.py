@@ -284,7 +284,7 @@ class Test_datasets(data.Dataset):
                 get_patch(LR_UW_patches, LR_REF_W_patches, LR_REF_T_patches, HR_UW_patches, None , is_crop=False, scale=self.scale, flag_HD_in=self.flag_HD_in, is_train=False)
 
         is_first = True
-        if self.idx_video[index] == self.idx_video[index - 1]:
+        if len(self.idx_video) > 1 and self.idx_video[index] == self.idx_video[index - 1]:
             is_first = False
 
         # is_portrait = False

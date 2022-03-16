@@ -6,5 +6,7 @@ CUDA_VISIBLE_DEVICES=0 python -B run.py \
     --config config_RefVSR_small_MFID_8K \
     --data RealMCVSR \
     --ckpt_abs_name ckpt/RefVSR_small_MFID_8K.pytorch \
-    --data_offset /data1/junyonglee \
-    --output_offset ./result
+    --data_offset ./test \
+    --output_offset ./result \
+    --qualitative_only \
+    --cpu

@@ -27,7 +27,7 @@ class SPyNet(nn.Module):
             [SPyNetBasicModule() for _ in range(6)])
 
         if isinstance(pretrained, str):
-            logger = get_root_logger()
+            logger = get_root_logger(log_level=0)
             load_checkpoint(self, pretrained, strict=True, logger=logger)
         elif pretrained is not None:
             raise TypeError('[pretrained] should be str or None, '
@@ -43,7 +43,7 @@ class SPyNet(nn.Module):
         self.std = torch.Tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1).to(device)
 
     def load_ckpt(self, pretrained):
-        logger = get_root_logger()
+        logger = get_root_logger(log_level=0)
         load_checkpoint(self, pretrained, strict=False, logger=logger)
 
     def compute_flow(self, ref, supp):

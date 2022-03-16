@@ -42,7 +42,7 @@ class Runner():
             self.trainer.print_network()
 
         ## checkpoint manager
-        self.ckpt_manager = CKPT_Manager(config.LOG_DIR.ckpt, config.mode, config.max_ckpt_num, is_descending=True)
+        self.ckpt_manager = CKPT_Manager(config.LOG_DIR.ckpt, config.mode, config.cuda, config.max_ckpt_num, is_descending=True)
 
         ## training vars
         self.states = ['train', 'valid']
@@ -249,6 +249,7 @@ if __name__ == '__main__':
         parser.add_argument('-lr', '--lr_init', type = float, default = config.lr_init, help = 'leraning rate')
         parser.add_argument('-th', '--thread_num', type = int, default = config.thread_num, help = 'number of thread')
         parser.add_argument('-dist', '--dist', action = 'store_true', default = config.dist, help = 'whether to distributed pytorch')
+        parser.add_argument('-cpu', '--cpu', action = 'store_true', default = False, help = 'whether to distributed pytorch')
         parser.add_argument('-vs', '--is_verbose', action = 'store_true', default = False, help = 'whether to delete log')
         parser.add_argument('-ss', '--save_sample', action = 'store_true', default = False, help = 'whether to save_sample')
         parser.add_argument('-is_crop_valid', '--is_crop_valid', action = 'store_true', default = False, help = 'whether to check train-val memory')
@@ -278,6 +279,13 @@ if __name__ == '__main__':
         config.batch_size = args.batch_size
         config.thread_num = args.thread_num
         config.dist = args.dist
+        if args.cpu:
+            config.dist = False
+            config.cuda = False
+            config.device = 'cpu'
+        else:
+            config.cuda = True
+            config.device = 'cuda'
         config.data = args.data
         config.LRS = args.LRS
         config.is_verbose = args.is_verbose
@@ -360,6 +368,7 @@ if __name__ == '__main__':
         parser.add_argument('-ckpt_epoch', '--ckpt_epoch', type=int, default = None, help='ckpt epoch')
         parser.add_argument('-ckpt_sc', '--ckpt_score', action = 'store_true', help='ckpt name')
         parser.add_argument('-dist', '--dist', action = 'store_true', default = False, help = 'whether to distributed pytorch')
+        parser.add_argument('-cpu', '--cpu', action = 'store_true', default = False, help = 'whether to distributed pytorch')
         parser.add_argument('-eval_mode', '--eval_mode', type=str, default = 'qual_quan', help = 'evaluation mode. qual(qualitative)/quan(quantitative)')
         parser.add_argument('-test_set', '--test_set', type=str, default = 'test', help = 'test set to evaluate. test/valid')
         parser.add_argument('-qualitative_only', '--qualitative_only', action = 'store_true', default = False, help = 'whether to save image')
@@ -384,6 +393,13 @@ if __name__ == '__main__':
         config.save_sample = args.save_sample
 
         config.dist = args.dist
+        if args.cpu:
+            config.dist = False
+            config.cuda = False
+            config.device = 'cpu'
+        else:
+            config.cuda = True
+            config.device = 'cuda'
         config.EVAL.eval_mode = args.eval_mode
         config.EVAL.test_set = args.test_set
         config.EVAL.data = args.data

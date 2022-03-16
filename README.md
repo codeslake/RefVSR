@@ -1,33 +1,19 @@
-# Reference-based Video Super-Resolution (RefVSR)<br><sub>Official PyTorch Implementation of the CVPR 2022 Paper</sub>
-![License CC BY-NC](https://img.shields.io/badge/license-GNU_AGPv3-blue.svg?style=plastic)
+## Reference-based Video Super-Resolution (RefVSR)<br><sub>Official PyTorch Implementation of the CVPR 2022 Paper</sub><br><sub>[Project](https://junyonglee.me/projects/RefVSR) | [arXiv](https://arxiv.org/abs/2203.14537) | [RealMCVSR Dataset](https://junyonglee.me/datasets/RealMCVSR)</sub><br><sub><sub>[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/reference-based-video-super-resolution-using/reference-based-video-super-resolution-on)](https://paperswithcode.com/sota/reference-based-video-super-resolution-on?p=reference-based-video-super-resolution-using)</sub></sub>
 
 This repo contains training and evaluation code for the following paper:
 
-> **Reference-based Video Super-Resolution Using Multi-Camera Video Triplets**<br>
-> Junyong Lee, Myeonghee Lee, Sunghyun Cho, and Seungyong Lee<br>
-> *IEEE Computer Vision and Pattern Recognition (**CVPR**) 2022*
+> [**Reference-based Video Super-Resolution Using Multi-Camera Video Triplets**](https://junyonglee.me/projects/RefVSR)<br>
+> [Junyong Lee](https://junyonglee.me), Myeonghee Lee, [Sunghyun Cho](https://www.scho.pe.kr/), and [Seungyong Lee](http://cg.postech.ac.kr/leesy/)<br>
+> POSTECH<br>
+> *IEEE Computer Vision and Pattern Recognition (**CVPR**) 2022*<br>
+
 
 <p align="left">
-<a href="https://codeslake.github.io/publications/#RefVSR">
+<a href="https://junyonglee.me/#RefVSR">
     <!--<img width=100% src="https://i.imgur.com/DryOd2I.gif"/>-->
     <img width=100% src="https://i.imgur.com/H2ioB72.gif"/>
 </a><br>
 </p>
-
-## About the Research
-<details>
-    <summary><i>Click here</i></summary>
-    <br>
-    <p align="left">
-    <a href="https://codeslake.github.io/publications/#RefVSR">
-        <img width=100% src="https://i.imgur.com/KHwjpaB.png"/>
-    </a><br>
-    </p>
-    <h3> Abstract </h3>
-    <p>
-       We propose the first reference-based video super-resolution (RefVSR) approach that utilizes reference videos for high-fidelity results. We focus on RefVSR in a triple-camera setting, where we aim at super-resolving a low-resolution ultra-wide video utilizing wide-angle and telephoto videos. We introduce the first RefVSR network that recurrently aligns and propagates temporal reference features fused with features extracted from low-resolution frames. To facilitate the fusion and propagation of temporal reference features, we propose a propagative temporal fusion module. For learning and evaluation of our network, we present the first RefVSR dataset consisting of triplets of ultra-wide, wide-angle, and telephoto videos concurrently taken from triple cameras of a smartphone. We also propose a two-stage training strategy fully utilizing video triplets in the proposed dataset for real-world 4x video super-resolution. We extensively evaluate our method, and the result shows the state-of-the-art performance in 4x super-resolution. 
-    </p>
-</details>
 
 ## Getting Started
 ### Prerequisites
@@ -58,7 +44,7 @@ $ ./install/install_cudnn113.sh
 > For the other models, PyTorch 1.8.0 is verified. To install requirements with PyTorch 1.8.0, run `./install/install_cudnn102.sh` for CUDA10.2 or `./install/install_cudnn111.sh` for CUDA11.1
 
 #### 2. Dataset
-Download and unzip the RealMCVSR dataset ([option 1](https://www.dropbox.com/sh/jyb5tpvctt97s5j/AABUGdkCPPaFU7k5Weo3ivOVa?dl=0), [option 2](https://postechackr-my.sharepoint.com/:f:/g/personal/junyonglee_postech_ac_kr/EuWIvNQZWfZMqsE9b375mJQB9jaKrCP4KvgR3uMvCQIdGw?e=5jFIhs)) under `[DATA_OFFSET]`:
+Download and unzip the proposed RealMCVSR dataset ([Google Drive](https://drive.google.com/drive/folders/1Li5Cn9Fwdlaa0KxjPnDNVBzT0UG4jnzj?usp=sharing) | [Dropbox](https://www.dropbox.com/sh/jyb5tpvctt97s5j/AABUGdkCPPaFU7k5Weo3ivOVa?dl=0) | [OneDrive](https://postechackr-my.sharepoint.com/:f:/g/personal/junyonglee_postech_ac_kr/EuWIvNQZWfZMqsE9b375mJQB9jaKrCP4KvgR3uMvCQIdGw?e=5jFIhs)) under `[DATA_OFFSET]`:
 
 ```
 [DATA_OFFSET]
@@ -81,7 +67,7 @@ Download and unzip the RealMCVSR dataset ([option 1](https://www.dropbox.com/sh/
 > `[DATA_OFFSET]` can be modified with `--data_offset` option in the evaluation script.
 
 #### 3. Pre-trained models
-Download [pretrained weights](https://www.dropbox.com/sh/pyirbf2jp0uxoq8/AAA6MEuSJYLcwQLVdx3s12Lea?dl=0) under `./ckpt/`:
+Download pretrained weights ([Google Drive](https://drive.google.com/drive/folders/1LtTYylYvOegybD4DbqqBhutn2_gfIBwZ?usp=sharing) | [Dropbox](https://www.dropbox.com/sh/pyirbf2jp0uxoq8/AAA6MEuSJYLcwQLVdx3s12Lea?dl=0)) under `./ckpt/`:
 
 ```
 RefVSR
@@ -238,21 +224,20 @@ Open an issue for any inquiries.
 You may also have contact with [junyonglee@postech.ac.kr](mailto:junyonglee@postech.ac.kr)
 
 ## License
+![License CC BY-NC](https://img.shields.io/badge/license-GNU_AGPv3-blue.svg?style=plastic)
+
 This software is being made available under the terms in the [LICENSE](LICENSE) file.
-
 Any exemptions to these terms require a license from the Pohang University of Science and Technology.
-
-## Citation
-If you find this code useful, please consider citing:
-```
-@InProceedings{Lee_2022_RefVSR,
-    author = {Lee, Junyong and Lee, Myeonghee and Cho, Sunghyun and Lee, Seungyong},
-    title = {Reference-based Video Super-Resolution Using Multi-Camera Video Triplets},
-    booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
-    year = {2022}
-}
-```
 
 ## Acknowledgment
 We thank the authors of [BasicVSR](https://github.com/ckkelvinchan/BasicVSR-IconVSR) and [DCSR](https://github.com/Tengfei-Wang/DCSR) for sharing their code.
 
+#### BibTeX
+```
+@InProceedings{Lee2022RefVSR,
+    author    = {Junyong Lee and Myeonghee Lee and Sunghyun Cho and Seungyong Lee},
+    title     = {Reference-based Video Super-Resolution Using Multi-Camera Video Triplets},
+    booktitle = {Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+    year      = {2022}
+}
+```
