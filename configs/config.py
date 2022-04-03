@@ -93,6 +93,8 @@ def get_config(project = '', mode = '', config_ = '', data = '', LRS = '', batch
     config.EVAL.is_qual = False
     config.EVAL.is_quan = True
     config.EVAL.is_debug = True
+    config.EVAL.is_gradio = False
+    config.EVAL.is_replicate= False
 
     config.EVAL.data = 'RealMCVSR'
     config.EVAL.test_set = 'test'

@@ -180,9 +180,15 @@ class Network(nn.Module):
             forward_flows = []
             backward_flows = []
             for j in range(0, t-1):
-                forward_flows.append(F.interpolate(self.FlowNet(lrs[:, j+1], lrs[:, j]), size=(h, w), mode='bilinear', align_corners=False)[:, None])
+                if self.config.EVAL.is_gradio is False:
+                    forward_flows.append(F.interpolate(self.FlowNet(lrs[:, j+1], lrs[:, j]), size=(h, w), mode='bilinear', align_corners=False)[:, None])
+                else:
+                    forward_flows.append(torch.zeros_like(lrs[:, j][:, None]))
             for j in range(t-1, 0, -1):
-                backward_flows.insert(0, F.interpolate(self.FlowNet(lrs[:, j-1], lrs[:, j]), size=(h, w), mode='bilinear', align_corners=False)[:, None])
+                if self.config.EVAL.is_gradio is False:
+                    backward_flows.insert(0, F.interpolate(self.FlowNet(lrs[:, j-1], lrs[:, j]), size=(h, w), mode='bilinear', align_corners=False)[:, None])
+                else:
+                    backward_flows.append(torch.zeros_like(lrs[:, j][:, None]))
             forward_flows = torch.cat(forward_flows, dim=1)
             backward_flows = torch.cat(backward_flows, dim=1)
 

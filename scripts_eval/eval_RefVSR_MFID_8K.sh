@@ -8,4 +8,4 @@ CUDA_VISIBLE_DEVICES=0 python -B run.py \
     --ckpt_abs_name ckpt/RefVSR_MFID_8K.pytorch \
     --data_offset /data1/junyonglee \
     --output_offset ./result \
-    --qualitative_only
+    --qualitative_only \

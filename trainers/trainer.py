@@ -20,7 +20,7 @@ from models.SRNet import SRNet
 from models.loss.Loss import Loss
 from models.utils import warp
 
-import fvcore.nn as fvnn
+#import fvcore.nn as fvnn
 from ptflops import get_model_complexity_info
 
 class Trainer(baseTrainer):
@@ -55,10 +55,11 @@ class Trainer(baseTrainer):
                 for name, param in self.network.named_parameters():
                     if self.rank <= 0: print(name, ', ', param.requires_grad)
         else:
-            self._set_dataloader(self.is_train)
+            if config.EVAL.is_replicate is False:
+                self._set_dataloader(self.is_train)
 
         ### DDP ###
-        if config.cuda:
+        if config.cuda and (config.EVAL.is_replicate is False or config.EVAL.is_gradio is False):
             if config.dist:
                 if self.rank <= 0: print(toGreen('Building Dist Parallel Model...'))
                 self.network = DDP(self.network, device_ids=[torch.cuda.current_device()], output_device=torch.cuda.current_device(), broadcast_buffers=True, find_unused_parameters=False)

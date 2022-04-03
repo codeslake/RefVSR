@@ -42,7 +42,7 @@ class Runner():
             self.trainer.print_network()
 
         ## checkpoint manager
-        self.ckpt_manager = CKPT_Manager(config.LOG_DIR.ckpt, config.mode, config.cuda, config.max_ckpt_num, is_descending=True)
+        self.ckpt_manager = CKPT_Manager(config.LOG_DIR.ckpt, config.mode, config.cuda, config.dist, config.max_ckpt_num, is_descending=True)
 
         ## training vars
         self.states = ['train', 'valid']
@@ -216,7 +216,7 @@ def init_dist(backend='nccl', **kwargs):
     dist.init_process_group(backend=backend, **kwargs)
 
 if __name__ == '__main__':
-    project = 'RefVSR_CVPR2022_test'
+    project = 'RefVSR_CVPR2022'
     mode = 'RefVSR'
 
     from configs.config import set_data_path
@@ -299,6 +299,7 @@ if __name__ == '__main__':
         config.gc = args.gc
 
         config.frame_num = args.frame_num
+        config.center_idx = config.frame_num//2
 
         # set datapath
         config = set_data_path(config, config.data, is_train=True)
@@ -373,6 +374,7 @@ if __name__ == '__main__':
         parser.add_argument('-test_set', '--test_set', type=str, default = 'test', help = 'test set to evaluate. test/valid')
         parser.add_argument('-qualitative_only', '--qualitative_only', action = 'store_true', default = False, help = 'whether to save image')
         parser.add_argument('-quantitative_only', '--quantitative_only', action = 'store_true', default = False, help = 'whether to compute PSNR/SSIM')
+        parser.add_argument('-is_gradio', '--is_gradio', action = 'store_true', default = False, help = 'whether it is eval for gradio')
         parser.add_argument('-is_debug', '--is_debug', action = 'store_true', default = False, help = 'whether to be in debug mode')
         parser.add_argument('-frame_num', '--frame_num', type=int, default = config.frame_num)
         parser.add_argument('-vid_name', '--vid_name', nargs='+', default = None, help = 'Name of video(s) to evaluate. e.g., --vid_name 0024 0074 ')
@@ -387,6 +389,7 @@ if __name__ == '__main__':
         config.EVAL.ckpt_epoch = args.ckpt_epoch
         config.EVAL.qualitative_only = args.qualitative_only
         config.EVAL.quantitative_only = args.quantitative_only
+        config.EVAL.is_gradio = args.is_gradio
         config.EVAL.is_debug = args.is_debug
         config.EVAL.load_ckpt_by_score = args.ckpt_score
         config.EVAL.vid_name = args.vid_name
@@ -406,7 +409,11 @@ if __name__ == '__main__':
 
         config.data_offset = args.data_offset
         config.EVAL.LOG_DIR.save = os.path.join(args.output_offset)
-        handle_directory(config, False)
+        if config.EVAL.is_gradio is False:
+            handle_directory(config, False)
+        else:
+            config.frame_num = 3
+            config.center_idx = config.frame_num//2
         config = set_data_path(config, config.EVAL.data, is_train=False)
 
         print(toRed('\tProject : {}'.format(config.project)))

@@ -6,7 +6,7 @@ import torch
 import numpy as np
 
 class CKPT_Manager:
-    def __init__(self, root_dir, model_name, cuda, max_files_to_keep = 10, is_descending = False):
+    def __init__(self, root_dir, model_name, cuda, dist, max_files_to_keep = 10, is_descending = False):
         self.root_dir = root_dir
         self.root_dir_ckpt = os.path.join(root_dir, 'ckpt')
         self.root_dir_state = os.path.join(root_dir, 'state')
@@ -14,6 +14,7 @@ class CKPT_Manager:
         self.model_name = model_name
         self.max_files = max_files_to_keep
         self.cuda = cuda
+        self.dist = dist
 
         self.ckpt_list = os.path.join(self.root_dir, 'checkpoints.txt')
         self.is_descending = is_descending
@@ -46,8 +47,7 @@ class CKPT_Manager:
                 file_name = '{}_{:05d}.pytorch'.format(self.model_name, epoch)
                 file_path = os.path.join(self.root_dir_ckpt, file_name)
 
-        device_id = torch.cuda.current_device()
-        if self.cuda is False:
+        if self.cuda is False or (self.cuda and self.dist is False):
             state_dict = torch.load(file_path, map_location='cpu')
             new_state_dict = {}
             for k, v in state_dict.items():
@@ -56,6 +56,7 @@ class CKPT_Manager:
             return network.load_state_dict(new_state_dict, strict=False), os.path.basename(file_name)
 
         else:
+            device_id = torch.cuda.current_device()
             return network.load_state_dict(torch.load(file_path, map_location="cuda:{}".format(device_id) if self.cuda else "cpu"), strict=False), os.path.basename(file_name)
 
     def resume(self, network, resume_name=None, resume_abs=None, rank = -1):

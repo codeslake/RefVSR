@@ -1,0 +1,29 @@
+build:
+  gpu: true
+  python_version: "3.8"
+  system_packages:
+    - "libgl1-mesa-glx"
+    - "libglib2.0-0"
+  python_packages:
+    - "torch==1.10.1"
+    - "torchvision==0.11.2"
+    - "easydict==1.9"
+    - "numpy==1.21.2"
+    - "ipython==7.22.0"
+    - "tqdm==4.56.0"
+    - "termcolor==1.1.0"
+    - "scikit-image==0.18.3"
+    - "scikit-learn==1.0"
+    - "scipy==1.7.1"
+    - "ptflops==0.6.6"
+    - "kornia==0.5.11"
+    - "opencv-python==4.5.3.56"
+    - "addict==2.4.0"
+    - "yapf==0.31.0"
+    - "packaging==21.0"
+    - "pyyaml==5.4.1"
+  run:
+    - pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html
+    - wget https://download.pytorch.org/models/vgg19-dcbb9e9d.pth -P /root/.cache/torch/hub/checkpoints
+
+predict: "replicate.py:Predictor"

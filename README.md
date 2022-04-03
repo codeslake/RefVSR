@@ -1,4 +1,4 @@
-## Reference-based Video Super-Resolution (RefVSR)<br><sub>Official PyTorch Implementation of the CVPR 2022 Paper</sub><br><sub>[Project](https://junyonglee.me/projects/RefVSR) | [arXiv](https://arxiv.org/abs/2203.14537) | [RealMCVSR Dataset](https://junyonglee.me/datasets/RealMCVSR)</sub><br><sub><sub>[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/reference-based-video-super-resolution-using/reference-based-video-super-resolution-on)](https://paperswithcode.com/sota/reference-based-video-super-resolution-on?p=reference-based-video-super-resolution-using)</sub></sub>
+## Reference-based Video Super-Resolution (RefVSR)<br><sub>Official PyTorch Implementation of the CVPR 2022 Paper</sub><br><sub>[Project](https://junyonglee.me/projects/RefVSR) | [arXiv](https://arxiv.org/abs/2203.14537) | [RealMCVSR Dataset](https://junyonglee.me/datasets/RealMCVSR)</sub><br><sub><sub>[![License CC BY-NC](https://img.shields.io/badge/Replicate-Run_in_Replicate_(Full_GPU_version)-blue.svg?style=flat)](https://replicate.ai/codeslake/refvsr-cvpr2022) [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97Hugging%20Face-Run%20in%20Spaces%20(light%20CPU%20version)-blue)](https://huggingface.co/spaces/codeslake/RefVSR)<br>[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/reference-based-video-super-resolution-using/reference-based-video-super-resolution-on)](https://paperswithcode.com/sota/reference-based-video-super-resolution-on?p=reference-based-video-super-resolution-using)</sub></sub>
 
 This repo contains training and evaluation code for the following paper:
 
@@ -33,7 +33,7 @@ $ cd RefVSR
 $ conda create -y name RefVSR python 3.8 && conda activate RefVSR
 
 # Install pytorch
-$ conda install pytorch==1.11.0 torchvision==0.12.0 torchaudio==0.11.0 cudatoolkit=11.3.1 -c pytorch
+$ conda install pytorch==1.11.0 torchvision==0.12.0 torchaudio==0.11.0 cudatoolkit=11.3 -c pytorch
 
 # Install requirements
 $ ./install/install_cudnn113.sh
@@ -44,7 +44,7 @@ $ ./install/install_cudnn113.sh
 > For the other models, PyTorch 1.8.0 is verified. To install requirements with PyTorch 1.8.0, run `./install/install_cudnn102.sh` for CUDA10.2 or `./install/install_cudnn111.sh` for CUDA11.1
 
 #### 2. Dataset
-Download and unzip the proposed RealMCVSR dataset ([Google Drive](https://drive.google.com/drive/folders/1Li5Cn9Fwdlaa0KxjPnDNVBzT0UG4jnzj?usp=sharing) | [Dropbox](https://www.dropbox.com/sh/jyb5tpvctt97s5j/AABUGdkCPPaFU7k5Weo3ivOVa?dl=0) | [OneDrive](https://postechackr-my.sharepoint.com/:f:/g/personal/junyonglee_postech_ac_kr/EuWIvNQZWfZMqsE9b375mJQB9jaKrCP4KvgR3uMvCQIdGw?e=5jFIhs)) under `[DATA_OFFSET]`:
+Download and unzip the proposed [RealMCVSR dataset](https://junyonglee.me/datasets/RealMCVSR) under `[DATA_OFFSET]`:
 
 ```
 [DATA_OFFSET]

@@ -45,9 +45,10 @@ def eval_qual_quan(config):
                 total_itr_time_video = total_itr_time_video / frame_len_prev
 
                 print('[MEAN EVAL {}|{}|{}][{}/{}] PSNR: {:.5f} SSIM: {:.5f} ({:.5f}sec)\n\n'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0], inputs['video_len'][0], PSNR_mean, SSIM_mean, total_itr_time_video))
-                with open(os.path.join(save_path_root_deblur_score, 'score_{}_{}.txt'.format(config.EVAL.data, config.EVAL.eval_mode)), 'a') as file:
-                    file.write('[MEAN EVAL {}|{}|{}][{}/{}] PSNR: {:.5f} SSIM: {:.5f} ({:.5f}sec)\n\n'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0], inputs['video_len'][0], PSNR_mean, SSIM_mean, total_itr_time_video))
-                    file.close()
+                if not config.EVAL.qualitative_only:
+                    with open(os.path.join(save_path_root_deblur_score, 'score_{}_{}.txt'.format(config.EVAL.data, config.EVAL.eval_mode)), 'a') as file:
+                        file.write('[MEAN EVAL {}|{}|{}][{}/{}] PSNR: {:.5f} SSIM: {:.5f} ({:.5f}sec)\n\n'.format(config.mode, config.EVAL.data, inputs['video_name'][0], inputs['video_idx'][0], inputs['video_len'][0], PSNR_mean, SSIM_mean, total_itr_time_video))
+                        file.close()
 
             total_itr_time_video = PSNR_mean = SSIM_mean = 0
 
@@ -101,25 +102,31 @@ def eval_qual_quan(config):
 
         ## Qualitative ##
         if not config.EVAL.quantitative_only:
-            inp_cpu = inp.cpu().numpy()[0].transpose(1, 2, 0)
-            for iformat in ['png', 'jpg']:
-            #for iformat in ['jpg']:
+            if config.EVAL.is_gradio is False:
+                inp_cpu = inp.cpu().numpy()[0].transpose(1, 2, 0)
+                for iformat in ['png', 'jpg']:
+                #for iformat in ['jpg']:
+                    frame_name_no_ext = frame_name.split('.')[0]
+                    save_path_deblur = os.path.join(save_path_root_deblur, iformat)
+                    Path(save_path_deblur).mkdir(parents=True, exist_ok=True)
+
+                    Path(os.path.join(save_path_deblur, 'input', inputs['video_name'][0])).mkdir(parents=True, exist_ok=True)
+                    save_file_path_deblur_input = os.path.join(save_path_deblur, 'input', inputs['video_name'][0], '{}.{}'.format(frame_name_no_ext, iformat))
+                    cv2.imwrite(save_file_path_deblur_input, cv2.cvtColor(inp_cpu*255, cv2.COLOR_RGB2BGR))
+
+                    Path(os.path.join(save_path_deblur, 'output', inputs['video_name'][0])).mkdir(parents=True, exist_ok=True)
+                    save_file_path_deblur_output = os.path.join(save_path_deblur, 'output', inputs['video_name'][0], '{}.{}'.format(frame_name_no_ext, iformat))
+                    cv2.imwrite(save_file_path_deblur_output, cv2.cvtColor(output_cpu*255, cv2.COLOR_RGB2BGR))
+
+                    if 'gt' in inputs.keys():
+                        Path(os.path.join(save_path_deblur, 'gt', inputs['video_name'][0])).mkdir(parents=True, exist_ok=True)
+                        save_file_path_deblur_gt = os.path.join(save_path_deblur, 'gt', inputs['video_name'][0], '{}.{}'.format(frame_name_no_ext, iformat))
+                        cv2.imwrite(save_file_path_deblur_gt, cv2.cvtColor(gt_cpu*255, cv2.COLOR_RGB2BGR))
+            else:
                 frame_name_no_ext = frame_name.split('.')[0]
-                save_path_deblur = os.path.join(save_path_root_deblur, iformat)
-                Path(save_path_deblur).mkdir(parents=True, exist_ok=True)
-
-                Path(os.path.join(save_path_deblur, 'input', inputs['video_name'][0])).mkdir(parents=True, exist_ok=True)
-                save_file_path_deblur_input = os.path.join(save_path_deblur, 'input', inputs['video_name'][0], '{}.{}'.format(frame_name_no_ext, iformat))
-                cv2.imwrite(save_file_path_deblur_input, cv2.cvtColor(inp_cpu*255, cv2.COLOR_RGB2BGR))
-
-                Path(os.path.join(save_path_deblur, 'output', inputs['video_name'][0])).mkdir(parents=True, exist_ok=True)
-                save_file_path_deblur_output = os.path.join(save_path_deblur, 'output', inputs['video_name'][0], '{}.{}'.format(frame_name_no_ext, iformat))
+                iformat = 'png'
+                save_file_path_deblur_output = os.path.join(save_path_root_deblur, '{}.{}'.format(frame_name_no_ext, iformat))
                 cv2.imwrite(save_file_path_deblur_output, cv2.cvtColor(output_cpu*255, cv2.COLOR_RGB2BGR))
-
-                if 'gt' in inputs.keys():
-                    Path(os.path.join(save_path_deblur, 'gt', inputs['video_name'][0])).mkdir(parents=True, exist_ok=True)
-                    save_file_path_deblur_gt = os.path.join(save_path_deblur, 'gt', inputs['video_name'][0], '{}.{}'.format(frame_name_no_ext, iformat))
-                    cv2.imwrite(save_file_path_deblur_gt, cv2.cvtColor(gt_cpu*255, cv2.COLOR_RGB2BGR))
 
         total_itr_time_video = total_itr_time_video + itr_time
         total_norm = total_norm + 1
@@ -131,6 +138,7 @@ def eval_qual_quan(config):
     SSIM_mean_total = (SSIM_mean_total + SSIM_mean) / total_norm
 
     sys.stdout.write('\n[TOTAL {}|{}] PSNR: {:.5f}  SSIM: {:.5f} ({:.5f}sec)\n'.format(ckpt_name, config.EVAL.data, PSNR_mean_total, SSIM_mean_total, total_itr_time))
-    with open(os.path.join(save_path_root_deblur_score, 'score_{}_{}.txt'.format(config.EVAL.data, config.EVAL.eval_mode)), 'a') as file:
-        file.write('\n[TOTAL {}|{}] PSNR: {:.5f} SSIM: {:.5f} ({:.5f}sec)\n'.format(ckpt_name, config.EVAL.data, PSNR_mean_total, SSIM_mean_total, total_itr_time))
-        file.close()
+    if not config.EVAL.qualitative_only:
+        with open(os.path.join(save_path_root_deblur_score, 'score_{}_{}.txt'.format(config.EVAL.data, config.EVAL.eval_mode)), 'a') as file:
+            file.write('\n[TOTAL {}|{}] PSNR: {:.5f} SSIM: {:.5f} ({:.5f}sec)\n'.format(ckpt_name, config.EVAL.data, PSNR_mean_total, SSIM_mean_total, total_itr_time))
+            file.close()
