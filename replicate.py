@@ -1,5 +1,5 @@
 import cog
-from cog import BasePredictor, Input
+from cog import BasePredictor, BaseModel, Input
 import torch
 
 from configs.config_RefVSR_MFID_8K import get_config
@@ -12,6 +12,13 @@ from data_loader.utils import load_file_list, refine_image, read_frame
 from pathlib import Path
 import tempfile
 import cv2
+
+#import os
+#os.environ["CUDA_VISIBLE_DEVICES"]="6"
+
+class Output(BaseModel):
+    LR_input: cog.Path
+    SR_output: cog.Path
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -62,13 +69,16 @@ class Predictor(BasePredictor):
     def predict(self,
             LR: cog.Path = Input(description="LR ultra-wide frame to super-resolve"),
             Ref: cog.Path = Input(description="Reference wide-angle frame")
-    ) -> cog.Path:
+    ) -> Output:
+    #) -> cog.Path:
         assert str(LR).split('.')[-1] in ['png', 'jpg'], 'image should end with ".jpg" or ".png"'
         assert str(Ref).split('.')[-1] in ['png', 'jpg'], 'image should end with ".jpg" or ".png"'
 
 
         LR_cpu = self.crop_img(read_frame(str(LR)))
         Ref_cpu = self.crop_img(read_frame(str(Ref)))
+        #LR_cpu = read_frame(str(LR))
+        #Ref_cpu = read_frame(str(Ref))
 
         LR = torch.FloatTensor(refine_image(LR_cpu, 8)[None, :, :, :].transpose(0, 3, 1, 2).copy()).to(self.device)
         Ref = torch.FloatTensor(refine_image(Ref_cpu, 8)[None, :, :, :].transpose(0, 3, 1, 2).copy()).to(self.device)
@@ -90,4 +100,11 @@ class Predictor(BasePredictor):
         cv2.imwrite(str(out_path), output_cpu)
         #cv2.imwrite('./out.png', output_cpu)
 
-        return out_path
+        #return out_path
+
+        input_cpu = LR.cpu().numpy()[0, 0].transpose(1, 2, 0)
+        input_cpu = (np.flip(input_cpu, 2) * 255).astype(np.uint8)
+        inp_path = cog.Path(tempfile.mkdtemp()) / 'inp.png'
+        cv2.imwrite(str(inp_path), input_cpu)
+
+        return Output(LR_input=inp_path, SR_output=out_path)
