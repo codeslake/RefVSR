@@ -68,7 +68,7 @@ def get_config(project = '', mode = '', config_ = '', data = '', LRS = '', batch
 
     # log dirs
     config.LOG_DIR = edict()
-    log_offset = '/Jarvis/logs/junyonglee'
+    log_offset = '/Bean/logs/junyonglee'
     offset = os.path.join(log_offset, config.project)
     offset = os.path.join(offset, '{}'.format(mode))
     config.LOG_DIR.offset = offset

@@ -9,7 +9,7 @@ This repo contains training and evaluation code for the following paper:
 
 
 <p align="left">
-<a href="https://junyonglee.me/#RefVSR">
+<a href="https://junyonglee.me/projects/RefVSR">
     <!--<img width=100% src="https://i.imgur.com/DryOd2I.gif"/>-->
     <img width=100% src="https://i.imgur.com/H2ioB72.gif"/>
 </a><br>

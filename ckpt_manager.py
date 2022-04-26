@@ -47,7 +47,7 @@ class CKPT_Manager:
                 file_name = '{}_{:05d}.pytorch'.format(self.model_name, epoch)
                 file_path = os.path.join(self.root_dir_ckpt, file_name)
 
-        if self.cuda is False or (self.cuda and self.dist is False):
+        if self.cuda is False:
             state_dict = torch.load(file_path, map_location='cpu')
             new_state_dict = {}
             for k, v in state_dict.items():
