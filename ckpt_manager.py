@@ -39,7 +39,7 @@ class CKPT_Manager:
         else:
             if name is not None:
                 file_name = name
-                file_path = os.path.join(self.root_dir_ckpt, file_name)
+                file_path = file_name
             if abs_name is not None:
                 file_name = os.path.basename(abs_name)
                 file_path = abs_name
