@@ -77,7 +77,7 @@ class CKPT_Manager:
             print('Rank[{}] resume ckpt loading: '.format(rank), result)
             return None
 
-        result, _ = self.load_ckpt(network, name=ckpt_dir)
+        result, _ = self.load_ckpt(network, abs_name=ckpt_dir)
         print('Rank[{}] resume ckpt loading: '.format(rank), result)
 
         # 3. load state
