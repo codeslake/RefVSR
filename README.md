@@ -70,7 +70,7 @@ Download and unzip the proposed [RealMCVSR dataset](https://junyonglee.me/datase
 <!---
 Download pretrained weights ([Google Drive](https://drive.google.com/drive/folders/1LtTYylYvOegybD4DbqqBhutn2_gfIBwZ?usp=sharing) | [Dropbox](https://www.dropbox.com/sh/pyirbf2jp0uxoq8/AAA6MEuSJYLcwQLVdx3s12Lea?dl=0)) under `./ckpt/`:
 -->
-Download pretrained weights ([One Drive](https://1drv.ms/f/s!AlTSSV9-C1OUgbhPkdEQqvAVj5napA?e=dvOcSq)) under `./ckpt/`:
+Download pretrained weights ([OneDrive](https://1drv.ms/f/s!AlTSSV9-C1OUgbhPkdEQqvAVj5napA?e=dvOcSq) | [Dropbox](https://www.dropbox.com/sh/pyirbf2jp0uxoq8/AAA6MEuSJYLcwQLVdx3s12Lea?dl=0)) under `./ckpt/`:
 
 ```
 RefVSR
